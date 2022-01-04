@@ -1,8 +1,8 @@
 Notes & resources
 #################
 :date: 2019-07-21 13:38
-:author: mrdiodamrdioda
-:slug: notes-2
+:author: diodaberjalan
+:slug: notes
 :status: published
 
 **Bahasa Indonesia**
