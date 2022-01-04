@@ -13,57 +13,283 @@
                 <h1><a href="/">Notes</a></h1>
                 <nav><ul>
                     <li class="active"><a href="/category/misc.html">misc</a></li>
+                    <li><a href="/category/uncategorized.html">Uncategorized</a></li>
                 </ul></nav>
         </header><!-- /#banner -->
 
             <aside id="featured" class="body">
                 <article>
-                    <h1 class="entry-title"><a href="/unbelievable.html">Unbelievable !</a></h1>
+                    <h1 class="entry-title"><a href="/wp-global-styles-pub%2fsophisticated-business.html">Custom Styles</a></h1>
 <footer class="post-info">
-        <abbr class="published" title="2010-10-15T20:30:00+07:00">
-                Published: Fri 15 October 2010
+        <abbr class="published" title="2022-01-04T07:24:00+07:00">
+                Published: Tue 04 January 2022
         </abbr>
 
         <address class="vcard author">
-                By                         <a class="url fn" href="/author/diodaberjalan.html">Diodaberjalan</a>
+                By                         <a class="url fn" href="/author/mrdiodamrdioda.html">mrdiodamrdioda</a>
         </address>
 <p>In <a href="/category/misc.html">misc</a>.</p>
 
-</footer><!-- /.post-info --><p>Or completely awesome. Depends the needs.</p>
-<p><a class="reference external" href="|filename|/cat1/markdown-article.md">a root-relative link to markdown-article</a>
-<a class="reference external" href="|filename|cat1/markdown-article.md">a file-relative link to markdown-article</a></p>
-<div class="section" id="testing-sourcecode-directive">
-<h2>Testing sourcecode directive</h2>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="n">formatter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="ow">and</span> <span class="n">VARIANTS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]]</span>
-</pre></div>
-</td></tr></table></div>
-<div class="section" id="testing-another-case">
-<h2>Testing another case</h2>
-<p>This will now have a line number in 'custom' since it's the default in
-pelican.conf, it will have nothing in default.</p>
-<div class="highlight"><pre><span></span><span class="n">formatter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="ow">and</span> <span class="n">VARIANTS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]]</span>
-</pre></div>
-<p>Lovely.</p>
-</div>
-<div class="section" id="testing-more-sourcecode-directives">
-<h2>Testing more sourcecode directives</h2>
-<div class="highlight"><pre><span></span><span id="foo-8"><a name="foo-8"></a><a href="#foo-8"><span class="linenos special"> 8</span></a><span class="testingk">def</span> <span class="testingnf">run</span><span class="testingp">(</span><span class="testingbp">self</span><span class="testingp">):</span><br></span><span id="foo-9"><a name="foo-9"></a><a href="#foo-9"><span class="linenos">  </span></a>    <span class="testingbp">self</span><span class="testingo">.</span><span class="testingn">assert_has_content</span><span class="testingp">()</span><br></span><span id="foo-10"><a name="foo-10"></a><a href="#foo-10"><span class="linenos special">10</span></a>    <span class="testingk">try</span><span class="testingp">:</span><br></span><span id="foo-11"><a name="foo-11"></a><a href="#foo-11"><span class="linenos">  </span></a>        <span class="testingn">lexer</span> <span class="testingo">=</span> <span class="testingn">get_lexer_by_name</span><span class="testingp">(</span><span class="testingbp">self</span><span class="testingo">.</span><span class="testingn">arguments</span><span class="testingp">[</span><span class="testingmi">0</span><span class="testingp">])</span><br></span><span id="foo-12"><a name="foo-12"></a><a href="#foo-12"><span class="linenos special">12</span></a>    <span class="testingk">except</span> <span class="testingne">ValueError</span><span class="testingp">:</span><br></span><span id="foo-13"><a name="foo-13"></a><a href="#foo-13"><span class="linenos">  </span></a>        <span class="testingc1"># no lexer found - use the text one instead of an exception</span><br></span><span id="foo-14"><a name="foo-14"></a><a href="#foo-14"><span class="linenos special">14</span></a>        <span class="testingn">lexer</span> <span class="testingo">=</span> <span class="testingn">TextLexer</span><span class="testingp">()</span><br></span><span id="foo-15"><a name="foo-15"></a><a href="#foo-15"><span class="linenos">  </span></a><br></span><span id="foo-16"><a name="foo-16"></a><a href="#foo-16"><span class="linenos special">16</span></a>    <span class="testingk">if</span> <span class="testingp">(</span><span class="testings1">&#39;linenos&#39;</span> <span class="testingow">in</span> <span class="testingbp">self</span><span class="testingo">.</span><span class="testingn">options</span> <span class="testingow">and</span><br></span><span id="foo-17"><a name="foo-17"></a><a href="#foo-17"><span class="linenos">  </span></a>            <span class="testingbp">self</span><span class="testingo">.</span><span class="testingn">options</span><span class="testingp">[</span><span class="testings1">&#39;linenos&#39;</span><span class="testingp">]</span> <span class="testingow">not</span> <span class="testingow">in</span> <span class="testingp">(</span><span class="testings1">&#39;table&#39;</span><span class="testingp">,</span> <span class="testings1">&#39;inline&#39;</span><span class="testingp">)):</span><br></span><span id="foo-18"><a name="foo-18"></a><a href="#foo-18"><span class="linenos special">18</span></a>        <span class="testingbp">self</span><span class="testingo">.</span><span class="testingn">options</span><span class="testingp">[</span><span class="testings1">&#39;linenos&#39;</span><span class="testingp">]</span> <span class="testingo">=</span> <span class="testings1">&#39;table&#39;</span><br></span><span id="foo-19"><a name="foo-19"></a><a href="#foo-19"><span class="linenos">  </span></a><br></span><span id="foo-20"><a name="foo-20"></a><a href="#foo-20"><span class="linenos special">20</span></a>    <span class="testingk">for</span> <span class="testingn">flag</span> <span class="testingow">in</span> <span class="testingp">(</span><span class="testings1">&#39;nowrap&#39;</span><span class="testingp">,</span> <span class="testings1">&#39;nobackground&#39;</span><span class="testingp">,</span> <span class="testings1">&#39;anchorlinenos&#39;</span><span class="testingp">):</span><br></span><span id="foo-21"><a name="foo-21"></a><a href="#foo-21"><span class="linenos">  </span></a>        <span class="testingk">if</span> <span class="testingn">flag</span> <span class="testingow">in</span> <span class="testingbp">self</span><span class="testingo">.</span><span class="testingn">options</span><span class="testingp">:</span><br></span><span id="foo-22"><a name="foo-22"></a><a href="#foo-22"><span class="linenos special">22</span></a>            <span class="testingbp">self</span><span class="testingo">.</span><span class="testingn">options</span><span class="testingp">[</span><span class="testingn">flag</span><span class="testingp">]</span> <span class="testingo">=</span> <span class="testingkc">True</span><br></span><span id="foo-23"><a name="foo-23"></a><a href="#foo-23"><span class="linenos">  </span></a><br></span><span id="foo-24"><a name="foo-24"></a><a href="#foo-24"><span class="linenos special">24</span></a>    <span class="testingc1"># noclasses should already default to False, but just in case...</span><br></span><span id="foo-25"><a name="foo-25"></a><a href="#foo-25"><span class="linenos">  </span></a>    <span class="testingn">formatter</span> <span class="testingo">=</span> <span class="testingn">HtmlFormatter</span><span class="testingp">(</span><span class="testingn">noclasses</span><span class="testingo">=</span><span class="testingkc">False</span><span class="testingp">,</span> <span class="testingo">**</span><span class="testingbp">self</span><span class="testingo">.</span><span class="testingn">options</span><span class="testingp">)</span><br></span><span id="foo-26"><a name="foo-26"></a><a href="#foo-26"><span class="linenos special">26</span></a>    <span class="testingn">parsed</span> <span class="testingo">=</span> <span class="testingn">highlight</span><span class="testingp">(</span><span class="testings1">&#39;</span><span class="testingse">\n</span><span class="testings1">&#39;</span><span class="testingo">.</span><span class="testingn">join</span><span class="testingp">(</span><span class="testingbp">self</span><span class="testingo">.</span><span class="testingn">content</span><span class="testingp">),</span> <span class="testingn">lexer</span><span class="testingp">,</span> <span class="testingn">formatter</span><span class="testingp">)</span><br></span><span id="foo-27"><a name="foo-27"></a><a href="#foo-27"><span class="linenos">  </span></a>    <span class="testingk">return</span> <span class="testingp">[</span><span class="testingn">nodes</span><span class="testingo">.</span><span class="testingn">raw</span><span class="testingp">(</span><span class="testings1">&#39;&#39;</span><span class="testingp">,</span> <span class="testingn">parsed</span><span class="testingp">,</span> <span class="testingnb">format</span><span class="testingo">=</span><span class="testings1">&#39;html&#39;</span><span class="testingp">)]</span><br></span></pre></div>
-<p>Lovely.</p>
-</div>
-<div class="section" id="testing-even-more-sourcecode-directives">
-<h2>Testing even more sourcecode directives</h2>
-<span class="n">formatter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="ow">and</span> <span class="n">VARIANTS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]]</span>
-<p>Lovely.</p>
-</div>
-<div class="section" id="testing-overriding-config-defaults">
-<h2>Testing overriding config defaults</h2>
-<p>Even if the default is line numbers, we can override it here</p>
-<div class="highlight"><pre><span></span><span class="n">formatter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="ow">and</span> <span class="n">VARIANTS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]]</span>
-</pre></div>
-<p>Lovely.</p>
-</div>
+</footer><!-- /.post-info --><p>{&quot;version&quot;:2,&quot;isGlobalStylesUserThemeJSON&quot;:true}</p>
                 </article>
             </aside><!-- /#featured -->
+                <section id="content" class="body">
+                    <h1>Other articles</h1>
+                    <hr />
+                    <ol id="posts-list" class="hfeed">
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/564.html" rel="bookmark"
+                           title="Permalink to No title [564]">No title [564]</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2021-11-03T06:22:00+07:00">
+                Published: Wed 03 November 2021
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/mrdiodamrdioda.html">mrdiodamrdioda</a>
+        </address>
+<p>In <a href="/category/misc.html">misc</a>.</p>
+
+</footer><!-- /.post-info -->                
+                <a class="readmore" href="/564.html">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/snaps.html" rel="bookmark"
+                           title="Permalink to SNAPS!">SNAPS!</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2021-11-03T06:22:00+07:00">
+                Published: Wed 03 November 2021
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/mrdiodamrdioda.html">mrdiodamrdioda</a>
+        </address>
+<p>In <a href="/category/misc.html">misc</a>.</p>
+
+</footer><!-- /.post-info -->                <div class="wp-block-columns alignwide docutils container">
+</p><div class="wp-block-column docutils container">
+</p><p><strong>For more snaps, go to my Instagram &#64;astrophysickist !</strong></p>
+</div>
+</div>
+<div class="wp-block-jetpack-tiled-gallery aligncenter is-style-square docutils container">
+<div class="tiled-gallery-gallery docutils container">
+<div class="tiled-gallery-row columns-2 docutils container">
+<div class="tiled-gallery-col docutils container">
+<div class="figure">
+<img alt="" src="https://starsblackholes.files.wordpress.com/2021/11/img_0608.jpg?resize=2000%2C2000" />
+</div>
+</div>
+<div class="tiled-gallery-col docutils container">
+<div class="figure">
+<img alt="" src="https://starsblackholes.files.wordpress.com/2021/11/img_4948.jpg?resize=2000%2C2000" />
+</div>
+</div>
+</div>
+<div class="tiled-gallery-row columns-3 docutils container">
+<div class="tiled-gallery-col docutils container">
+<div class="figure">
+<img alt="" src="https://starsblackholes.files.wordpress.com/2021/11/img_1579.jpg?resize=2000%2C2000" />
+</div>
+</div>
+<div class="tiled-gallery-col docutils container">
+<div class="figure">
+<img alt="" src="https://starsblackholes.files.wordpress.com/2021/11/m-33-lrgb_2.jpg?resize=2000%2C2000" />
+</div>
+</div>
+<div class="tiled-gallery-col docutils container">
+<div class="figure">
+<img alt="" src="https://starsblackholes.files.wordpress.com/2021/11/23_34_22.jpg?resize=927%2C927" />
+</div>
+</div>
+</div>
+</div>
+</div>
+
+                <a class="readmore" href="/snaps.html">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/438.html" rel="bookmark"
+                           title="Permalink to No title [438]">No title [438]</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2019-07-22T07:31:00+07:00">
+                Published: Mon 22 July 2019
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/mrdiodamrdioda.html">mrdiodamrdioda</a>
+        </address>
+<p>In <a href="/category/misc.html">misc</a>.</p>
+
+</footer><!-- /.post-info -->                
+                <a class="readmore" href="/438.html">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/439.html" rel="bookmark"
+                           title="Permalink to No title [439]">No title [439]</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2019-07-22T07:31:00+07:00">
+                Published: Mon 22 July 2019
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/mrdiodamrdioda.html">mrdiodamrdioda</a>
+        </address>
+<p>In <a href="/category/misc.html">misc</a>.</p>
+
+</footer><!-- /.post-info -->                
+                <a class="readmore" href="/439.html">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/about.html" rel="bookmark"
+                           title="Permalink to About">About</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2019-07-22T07:28:00+07:00">
+                Published: Mon 22 July 2019
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/mrdiodamrdioda.html">mrdiodamrdioda</a>
+        </address>
+<p>In <a href="/category/misc.html">misc</a>.</p>
+
+</footer><!-- /.post-info -->                <div class="section" id="dioda-berjalan">
+<h2>Dioda Berjalan</h2>
+<p>I am an amateur astronomer who works as a professional astronomer all of a sudden. Loves to confront the theoretical aspect of physics with observational astronomy. Sky-snapper!</p>
+</div>
+
+                <a class="readmore" href="/about.html">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/notes-2.html" rel="bookmark"
+                           title="Permalink to Notes & resources">Notes &amp; resources</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2019-07-21T13:38:00+07:00">
+                Published: Sun 21 July 2019
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/mrdiodamrdioda.html">mrdiodamrdioda</a>
+        </address>
+<p>In <a href="/category/misc.html">misc</a>.</p>
+
+</footer><!-- /.post-info -->                <p><strong>Bahasa Indonesia</strong></p>
+<p><em>Observatorium di Indonesia</em>, Pertemuan Rutin Dwimingguan Himpunan Astronomi Amatir Jakarta. (2019). [<a class="reference external" href="https://starsblackholes.files.wordpress.com/2019/09/perut-haaj.pdf">pdf</a>] [<a class="reference external" href="https://www.youtube.com/watch?v=R-mEvOHAtV0">video</a>]</p>
+<p><em>Astrofisika: Perkenalan</em>. Ajarbelajar.com. [<a class="reference external" href="https://www.youtube.com/watch?v=JgsxYEpq9HM">video</a>]</p>
+<p><em>Bumi itu Bulat?</em>, Pertemuan Rutin Dwimingguan Himpunan Astronomi Amatir Jakarta. (2016). [<a class="reference external" href="https://www.youtube.com/watch?v=R-mEvOHAtV0">video</a>] [<a class="reference external" href="https://www.youtube.com/watch?v=7hsfgHmatLw">video</a>]</p>
+<p><em>Struktur Tata Surya</em>, Pertemuan Rutin Dwimingguan Himpunan Astronomi Amatir Jakarta. (2014). [<a class="reference external" href="https://www.youtube.com/watch?v=R-mEvOHAtV0">video</a>] [<a class="reference external" href="https://www.youtube.com/watch?v=7hsfgHmatLw">video</a>]</p>
+<p><strong>English</strong></p>
+<p><strong>Refereed papers and …</strong></p>
+                <a class="readmore" href="/notes-2.html">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/31.html" rel="bookmark"
+                           title="Permalink to No title [31]">No title [31]</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2019-07-21T12:10:00+07:00">
+                Published: Sun 21 July 2019
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/mrdiodamrdioda.html">mrdiodamrdioda</a>
+        </address>
+<p>In <a href="/category/misc.html">misc</a>.</p>
+
+</footer><!-- /.post-info -->                
+                <a class="readmore" href="/31.html">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/11.html" rel="bookmark"
+                           title="Permalink to Front">Front</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2019-07-21T10:54:00+07:00">
+                Published: Sun 21 July 2019
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/mrdiodamrdioda.html">mrdiodamrdioda</a>
+        </address>
+<p>In <a href="/category/misc.html">misc</a>.</p>
+
+</footer><!-- /.post-info -->                
+                <a class="readmore" href="/11.html">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/blog-feed.html" rel="bookmark"
+                           title="Permalink to Blog Feed">Blog Feed</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2019-07-21T10:49:00+07:00">
+                Published: Sun 21 July 2019
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/mrdiodamrdioda.html">mrdiodamrdioda</a>
+        </address>
+<p>In <a href="/category/misc.html">misc</a>.</p>
+
+</footer><!-- /.post-info -->                
+                <a class="readmore" href="/blog-feed.html">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+                </ol><!-- /#posts-list -->
+<p class="paginator">
+    Page 1 / 2
+        <a href="/category/misc2.html">&raquo;</a>
+        <a href="/category/misc2.html">&#8649;</a>
+</p>
+                </section><!-- /#content -->
         <section id="extras" class="body">
                 <div class="blogroll">
                         <h2>links</h2>
@@ -71,15 +297,13 @@ pelican.conf, it will have nothing in default.</p>
                             <li><a href="https://getpelican.com/">Pelican</a></li>
                             <li><a href="https://www.python.org/">Python.org</a></li>
                             <li><a href="https://palletsprojects.com/p/jinja/">Jinja2</a></li>
-                            <li><a href="#">You can modify those links in your config file</a></li>
                         </ul>
                 </div><!-- /.blogroll -->
                 <div class="social">
                         <h2>social</h2>
                         <ul>
 
-                            <li><a href="#">You can add links in your config file</a></li>
-                            <li><a href="#">Another social link</a></li>
+                            <li><a href="https://twitter.com/niftybaffle">Twitter</a></li>
                         </ul>
                 </div><!-- /.social -->
         </section><!-- /#extras -->
