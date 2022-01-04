@@ -1,8 +1,0 @@
-ARTICLES! (English)
-###################
-:date: 2017-07-06 10:32
-:author: mrdiodamrdioda
-:slug: bl%e2%98%89g
-:status: published
-
-[vc_row][vc_column][vc_basic_grid post_type="post" max_items="-1" style="lazy" element_width="12" grid_id="vc_gid:1537020899281-ed73c9df-e5e7-1" taxonomies="63"][/vc_column][/vc_row]
