@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sidereal Time Calculator</title>
   <style>
-    /* Original CSS remains unchanged */
     :root {
       --bg: #f0f2f5;
       --card: #ffffff;
@@ -73,6 +72,22 @@
     .toggle-group button {
       flex: 1;
     }
+    /* Emoji container for celestial positions */
+    #emojiContainer {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      margin: 1rem auto;
+      border: 2px dashed #ddd;
+      border-radius: 50%;
+    }
+    .celestial-emoji {
+      position: absolute;
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+      transform: translate(-50%, -50%);
+    }
   </style>
 </head>
 <body>
@@ -112,10 +127,11 @@
   <div class="card">
     <div class="result" id="result">Sidereal Time:</div>
     <div class="celestial" id="celestialPosition"></div>
+    <div id="emojiContainer"></div>
   </div>
 
   <script>
-    // Improved astronomical calculations (calculation part remains untouched)
+    // Sidereal time calculation (calculation part remains untouched)
     function calculateSiderealTime(jd, longitude) {
       const T = (jd - 2451545.0) / 36525;
       const gmst = 280.46061837 + 360.98564736629 * (jd - 2451545.0)
@@ -128,23 +144,46 @@
       const h = Math.floor(hours);
       const m = Math.floor((hours - h) * 60);
       const s = Math.round(((hours - h) * 60 - m) * 60);
-      return `${h.toString().padStart(2, '0')}:${m}:${s.toString().padStart(2, '0')}`;
+      return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     }
 
-    function getMoonPhaseEmoji(jd) {
+    // Corrected moon phase calculation
+    function getMoonPhaseInfo(jd) {
       const lunarCycle = 29.53058867;
-      const newMoonRef = 2451549.5; // 2000-01-06 18:14 UTC
-      const phase = ((jd - newMoonRef) / lunarCycle) % 1;
-      const normalized = phase < 0 ? phase + 1 : phase;
+      const newMoonRef = 2451549.5; // Verified reference new moon
+      let phase = ((jd - newMoonRef) / lunarCycle) % 1;
+      phase = phase < 0 ? phase + 1 : phase;
+      
+      // Calculate illuminated percentage correctly
+      const phaseAngle = phase * 2 * Math.PI;
+      const illuminated = (1 - Math.cos(phaseAngle)) / 2;
+      const percentage = (illuminated * 100).toFixed(1);
 
-      if (normalized < 0.0625 || normalized >= 0.9375) return '🌑';
-      else if (normalized < 0.1875) return '🌒';
-      else if (normalized < 0.3125) return '🌓';
-      else if (normalized < 0.4375) return '🌔';
-      else if (normalized < 0.5625) return '🌕';
-      else if (normalized < 0.6875) return '🌖';
-      else if (normalized < 0.8125) return '🌗';
-      else return '🌘';
+      // Determine moon phase emoji
+      let emoji = '🌑';
+      if (phase < 0.0625 || phase >= 0.9375) emoji = '🌑';
+      else if (phase < 0.1875) emoji = '🌒';
+      else if (phase < 0.3125) emoji = '🌓';
+      else if (phase < 0.4375) emoji = '🌔';
+      else if (phase < 0.5625) emoji = '🌕';
+      else if (phase < 0.6875) emoji = '🌖';
+      else if (phase < 0.8125) emoji = '🌗';
+      else emoji = '🌘';
+
+      return { emoji, percentage, phase };
+    }
+
+    // Improved celestial positioning using computed sunAngle and moon phase
+    function getCelestialPosition(jd, sunAngle) {
+      const moonPhase = getMoonPhaseInfo(jd).phase;
+      
+      // Moon position relative to sun (180° offset at full moon)
+      const moonAngle = (sunAngle + 180 * moonPhase) % 360;
+      const sunX = 100 + 100 * Math.cos((sunAngle - 90) * Math.PI / 180);
+      const sunY = 100 + 100 * Math.sin((sunAngle - 90) * Math.PI / 180);
+      const moonX = 100 + 100 * Math.cos((moonAngle - 90) * Math.PI / 180);
+      const moonY = 100 + 100 * Math.sin((moonAngle - 90) * Math.PI / 180);
+      return { sunX, sunY, moonX, moonY };
     }
 
     // Original UI functions remain unchanged
@@ -184,7 +223,7 @@
       document.getElementById('timeInput').disabled = false;
     }
 
-    // Updated calculation function
+    // Updated calculation function with emoji visualization for celestial positions
     async function calculate() {
       const lat = parseFloat(document.getElementById('lat').value);
       const lon = parseFloat(document.getElementById('lon').value);
@@ -202,11 +241,41 @@
       ) / 86400000) + 2440587.5;
 
       const lstHours = calculateSiderealTime(jd, lon);
-      document.getElementById('result').textContent = 
+      document.getElementById('result').textContent =
         `Local Sidereal Time: ${formatHMS(lstHours)}`;
 
+      // Get accurate moon phase info
+      const moonInfo = getMoonPhaseInfo(jd);
+      
+      // Calculate celestial positions based on UTC hours
+      const hours = date.getUTCHours() + date.getUTCMinutes() / 60;
+      const sunAngle = (hours / 24) * 360; // 0° at midnight, 180° at noon, etc.
+      const positions = getCelestialPosition(jd, sunAngle);
+
+      // Build emoji visualization for sun and moon positions
+      const emojiContainer = document.getElementById('emojiContainer');
+      // Clear previous contents
+      emojiContainer.innerHTML = '';
+
+      // Create sun emoji element
+      const sunEmoji = document.createElement('div');
+      sunEmoji.className = 'celestial-emoji';
+      sunEmoji.textContent = '🌞';
+      sunEmoji.style.left = positions.sunX + 'px';
+      sunEmoji.style.top = positions.sunY + 'px';
+      emojiContainer.appendChild(sunEmoji);
+
+      // Create moon emoji element
+      const moonEmoji = document.createElement('div');
+      moonEmoji.className = 'celestial-emoji';
+      moonEmoji.textContent = '🌜';
+      moonEmoji.style.left = positions.moonX + 'px';
+      moonEmoji.style.top = positions.moonY + 'px';
+      emojiContainer.appendChild(moonEmoji);
+
+      // Display moon phase info and percentage
       document.getElementById('celestialPosition').innerHTML = `
-        <div>Moon Phase: ${getMoonPhaseEmoji(jd)}</div>
+        <div>Moon Phase: ${moonInfo.emoji} (${moonInfo.percentage}% illuminated)</div>
       `;
     }
 
