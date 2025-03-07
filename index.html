@@ -1,126 +1,188 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sidereal Time Calculator</title>
+    <script src="https://cdn.jsdelivr.net/npm/suncalc@1.8.0/suncalc.min.js"></script>
     <style>
-        /* Previous styles remain unchanged */
-        .location-group { margin-bottom: 1rem; }
-        .toggle-buttons { display: flex; gap: 10px; margin-bottom: 1rem; }
-        .toggle-buttons button { width: auto; padding: 0.5rem 1rem; }
-        .celestial-display { display: flex; justify-content: space-around; margin: 1.5rem 0; }
-        .celestial-item { text-align: center; font-size: 1.5rem; }
-        .disabled { background-color: #f0f0f0; opacity: 0.7; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .input-group {
+            margin: 10px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .disabled {
+            background: #f8f9fa;
+            cursor: not-allowed;
+        }
+        #result {
+            font-size: 1.2em;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .celestial {
+            font-size: 2em;
+            margin<: 10px 0;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🌌 Sidereal Time Calculator</h1>
-        
-        <div class="toggle-buttons">
-            <button onclick="setCurrentTime(true)">Use Current Time</button>
-            <button onclick="setCustomTime()">Custom Time</button>
-        </div>
-
+    div class="card">
+        <h2>Location</h2>
         <div class="input-group">
-            <label for="date">UTC Date</label>
-            <input type="date" id="date" required class="time-input">
-        </div>
-
-        <div class="input-group">
-            <label for="time">UTC Time</label>
-            <input type="time" id="time" step="1" required class="time-input">
-        </div>
-
-        <div class="location-group">
-            <div class="toggle-buttons">
-                <button onclick="detectLocation()">📍 Detect Location</button>
-                <button onclick="showCitySelector()">🌍 Select City</button>
-            </div>
-            
-            <select id="city-select" style="display: none; width: 100%; margin-bottom: 1rem;">
-                <option value="">Select a City</option>
-                <option value="0">London (0°)</option>
-                <option value="-74.0060">New York (-74.006°W)</option>
-                <option value="139.6917">Tokyo (139.692°E)</option>
+            <select id="citySelect" class="input-group">
+                <option value="custom">Custom Location</option>
+                <option value="51.5074,-0.1278">London</option>
+                <option value="40.7128,-74.0060">New York</option>
+                <option value="35.6762,139.6503">Tokyo</option>
             </select>
-
-            <div class="input-group">
-                <label for="longitude">Longitude (°)</label>
-                <input type="number" id="longitude" step="0.0001" placeholder="East positive, West negative" required>
-            </div>
         </div>
-
-        <button onclick="calculateAll()">Calculate All Values</button>
+        <button onclick="detectLocation()">Detect My Location</button>
         
-        <div class="celestial-display">
-            <div class="celestial-item" id="sun-position">🌞 --°</div>
-            <div class="celestial-item" id="moon-position">🌕 --°</div>
+        <div class="input-group">
+            <label>Latitude:</label>
+            <input type="number" id="latitude" step="any" placeholder="e.g., 40.7128">
         </div>
+        <div class="input-group">
+            <label>Longitude:</label>
+            <input type="number" id="longitude" step="any" placeholder="e.g., -74.<0060">
+        </div>
+    </div>
 
-        <div id="result"></div>
+    <div class="card">
+        h2>Time</h2>
+        <div class="input-group">
+            <button onclick="setCurrentTime()">Use Current Time</button>
+            <label style="display: block; margin-top: 10px;">
+                <input type="radio" name="time" id="currentTime" checked onchange="toggleTimeInput()"> Now
+            </label>
+            <label>
+                <input type="radio" name="time" id="customTime" onchange="toggleTimeInput()"> Custom
+            </label>
+        </div>
+        <div class="input-group">
+            <input type="datetime-local" id="datetime" class="disabled<" disabled>
+        </div>
+    </div>
+
+    <div class="card">
+        button onclick="calculateAll()" style="width: 100%;">Calculate</button>
+        <div id="result">
+            <div class="celestial">
+                <span id="sunStatus">🌞</span>
+                <span id="moonStatus">🌕</span>
+            </div>
+            <div id="siderealTime">Sidereal Time: </div>
+        </div>
     </div>
 
     <script>
-        // Previous time and sidereal calculations remain unchanged
-
-        // New location functions
-        async function detectLocation() {
-            try {
-                const response = await fetch('https://ipapi.co/json/');
-                const data = await response.json();
-                document.getElementById('longitude').value = data.longitude;
-                document.getElementById('city-select').style.display = 'none';
-            } catch (error) {
-                alert('Location detection failed. Please enter manually.');
+        // Location Handling
+        function detectLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    document.getElementById('latitude').value = position.coords.latitude.toFixed(4);
+                    document.getElementById('longitude').value = position.coords.longitude.toFixed(4);
+                });
             }
         }
 
-        function showCitySelector() {
-            const selector = document.getElementById('city-select');
-            selector.style.display = 'block';
-            selector.onchange = (e) => {
-                if (e.target.value) document.getElementById('longitude').value = e.target.value;
-            };
+        document.getElementById('citySelect').addEventListener('change', function() {
+            if (this.value !== 'custom') {
+                const [lat, lon] = this.value.split(',');
+                document.getElementById('latitude').value = lat;
+                document.getElementById('longitude').value = lon;
+            }
+        });
+
+        // Time Handling
+        function setCurrentTime() {
+            const now = new Date();
+            const localDateTime = new Date(now.getTime() - (now.getTimezoneOffset() * 60000))
+                .toISOString().slice(0, 16);
+            document.getElementById('datetime').value = localDateTime;
         }
 
-        // New time functions
-        function setCurrentTime(updateFields = true) {
-            const inputs = document.querySelectorAll('.time-input');
-            inputs.forEach(input => {
-                input.disabled = updateFields;
-                input.classList.toggle('disabled', updateFields);
-            });
-            if (updateFields) setCurrentUTCDateTime();
+        function toggleTimeInput() {
+            const isCustom = document.getElementById('customTime').checked;
+            document.getElementById('datetime').disabled = !isCustom;
+            if (!isCustom) setCurrentTime();
         }
 
-        function setCustomTime() {
-            document.querySelectorAll('.time-input').forEach(input => {
-                input.disabled = false;
-                input.classList.remove('disabled');
-            });
-        }
-
-        // New celestial calculations
-        function calculateCelestialPositions() {
-            // Simplified example calculations
-            const sunAlt = Math.random() * 90;
-            const moonAlt = Math.random() * 90;
-            document.getElementById('sun-position').innerHTML = `🌞 ${sunAlt.toFixed(1)}°`;
-            document.getElementById('moon-position').innerHTML = `🌕 ${moonAlt.toFixed(1)}°`;
-        }
-
+        // Main Calculation
         function calculateAll() {
-            calculateSiderealTime();
-            calculateCelestialPositions();
+            const lat = parseFloat(document.getElementById('latitude').value);
+            const lon = parseFloat(document.getElementById('longitude').value);
+            const date = document.getElementById('customTime').checked ? 
+                new Date(document.getElementById('datetime').value) : new Date();
+
+            if (isNaN(lat) || isNaN(lon)) {
+                alert('Please enter valid coordinates');
+                return;
+            }
+
+            // Sidereal Time Calculation
+            const jd = getJulianDate(date);
+            const t = (jd - 2451545.0) / 36525;
+            let gst = 280.46061837 + 360.98564736629 * (jd - 2451545.0);
+            gst += 0.000387933 * t*t - t*t*t/38710000;
+            gst = (gst % 360 + 360) % 360;
+            const lst = ((gst/15 + lon/15) % 24 + 24) % 24;
+
+            // Celestial Positions
+            const sunPos = SunCalc.getPosition(date, lat, lon);
+            const moonPos = SunCalc.getMoonPosition(date, lat, lon);
+
+            // Update Display
+            document.getElementById('siderealTime').innerHTML = 
+                `Local Sidereal Time: <strong>${lst.toFixed(4)} hours</strong>`;
+            document.getElementById('sunStatus').textContent = 
+                sunPos.altitude > 0 ? '🌞↑' : '🌞↓';
+            document.getElementById('moonStatus').textContent = 
+                moonPos.altitude > 0 ? '🌕↑' : '🌕↓';
         }
 
-        // Initialize
-        window.onload = () => {
-            setCurrentTime(true);
-            detectLocation();
-        };
+        function getJulianDate(date) {
+            return (date.getTime() / 86400000) + 2440587.5;
+        }
+
+        // Initial Setup
+        setCurrentTime();
+        toggleTimeInput();
     </script>
 </body>
 </html>
