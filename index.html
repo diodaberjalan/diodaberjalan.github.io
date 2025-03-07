@@ -76,10 +76,11 @@
       font-size: 0.9rem;
     }
     .result {
-      font-size: 1.4rem;
-      text-align: center;
+      font-size: 1.2rem;
+      text-align: left; /* Changed to left alignment for time verification */
       font-weight: 600;
-      margin-bottom: 1rem;
+      margin-bottom: 0.8rem; /* Reduced margin */
+      line-height: 1.4; /* Added line height for better readability */
     }
     .celestial {
       font-size: 1.2rem;
@@ -109,7 +110,6 @@
   <div class="container">
     <div class="card">
       <h1>🌌 Sidereal Time Calculator</h1>
-
       <div class="input-group">
         <label>Location:</label>
         <div class="toggle-group">
@@ -144,7 +144,6 @@
           <input type="number" id="lon" step="0.0001" placeholder="Longitude" style="margin-top: 0.5rem;" />
         </div>
       </div>
-
       <div class="input-group">
         <label>Time (UTC): </label>
         <div class="toggle-group">
@@ -153,172 +152,293 @@
         </div>
         <input type="datetime-local" id="timeInput" disabled />
       </div>
-
       <button onclick="calculate()">🚀 Calculate</button>
     </div>
-
     <div class="card">
-      <div class="result" id="result">Sidereal Time:</div>
+      <div class="result" id="result">Local Sidereal Time:</div>
+      <div class="result" id="timeVerification"></div>
       <div class="celestial" id="celestialPosition"></div>
       <div id="emojiContainer"></div>
     </div>
   </div>
-
   <script>
-    // Sidereal time calculation (calculation part remains untouched)
-    function calculateSiderealTime(jd, longitude) {
-      const T = (jd - 2451545.0) / 36525;
-      const gmst = 280.46061837 + 360.98564736629 * (jd - 2451545.0)
-                 + 0.000387933 * T * T - T * T * T / 38710000;
-      const lst = (gmst / 15 + longitude / 15) % 24;
-      return lst < 0 ? lst + 24 : lst;
-    }
-
-    function formatHMS(hours) {
-      const h = Math.floor(hours);
-      const m = Math.floor((hours - h) * 60);
-      const s = Math.round(((hours - h) * 60 - m) * 60);
-      return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-    }
-
-    // Corrected moon phase calculation
-    function getMoonPhaseInfo(jd) {
-      const lunarCycle = 29.53058867;
-      const newMoonRef = 2451549.5; // Verified reference new moon
-      let phase = ((jd - newMoonRef) / lunarCycle) % 1;
-      phase = phase < 0 ? phase + 1 : phase;
-      
-      // Calculate illuminated percentage correctly
-      const phaseAngle = phase * 2 * Math.PI;
-      const illuminated = (1 - Math.cos(phaseAngle)) / 2;
-      const percentage = (illuminated * 100).toFixed(1);
-
-      // Determine moon phase emoji
-      let emoji = '🌑';
-      if (phase < 0.0625 || phase >= 0.9375) emoji = '🌑';
-      else if (phase < 0.1875) emoji = '🌒';
-      else if (phase < 0.3125) emoji = '🌓';
-      else if (phase < 0.4375) emoji = '🌔';
-      else if (phase < 0.5625) emoji = '🌕';
-      else if (phase < 0.6875) emoji = '🌖';
-      else if (phase < 0.8125) emoji = '🌗';
-      else emoji = '🌘';
-
-      return { emoji, percentage, phase };
-    }
-
-    // Improved celestial positioning using computed sunAngle and moon phase
-    function getCelestialPosition(jd, sunAngle) {
-      const moonPhase = getMoonPhaseInfo(jd).phase;
-      
-      // Moon position relative to sun (180° offset at full moon)
-      const moonAngle = (sunAngle + 180 * moonPhase) % 360;
-      const sunX = 100 + 100 * Math.cos((sunAngle - 90) * Math.PI / 180);
-      const sunY = 100 + 100 * Math.sin((sunAngle - 90) * Math.PI / 180);
-      const moonX = 100 + 100 * Math.cos((moonAngle - 90) * Math.PI / 180);
-      const moonY = 100 + 100 * Math.sin((moonAngle - 90) * Math.PI / 180);
-      return { sunX, sunY, moonX, moonY };
-    }
-
-    // Original UI functions remain unchanged
-    async function detectLocation() {
-      try {
-        const response = await fetch('https://ipapi.co/json/');
-        const data = await response.json();
-        document.getElementById('lat').value = data.latitude;
-        document.getElementById('lon').value = data.longitude;
-        showManualLocation();
-      } catch (error) {
-        alert('Location detection failed');
+    // ======================
+    // CORE TIME HANDLING
+    // ======================
+    const TimeManager = {
+      getUTCDate(inputTime) {
+        if (!inputTime) return new Date();
+        const [datePart, timePart] = inputTime.split('T');
+        const [year, month, day] = datePart.split('-').map(Number);
+        const [hours, minutes] = timePart.split(':').map(Number);
+        return new Date(Date.UTC(year, month - 1, day, hours, minutes));
+      },
+      setUTCDateInput(date) {
+        const pad = n => n.toString().padStart(2, '0');
+        const utcString =
+          `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}` +
+          `T${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}`;
+        document.getElementById('timeInput').value = utcString;
       }
-    }
+    };
 
-    function showManualLocation() {
-      document.getElementById('manualLocation').style.display = 'block';
-      document.getElementById('citySelect').value = '';
-    }
-
-    function updateCity() {
-      const [lat, lon] = document.getElementById('citySelect').value.split(',');
-      if (lat && lon) {
-        document.getElementById('lat').value = lat;
-        document.getElementById('lon').value = lon;
-        showManualLocation();
+    // ======================
+    // TIME CALCULATION CORE
+    // ======================
+    const TimeCalculator = {
+      getJulianDate(date) {
+        return (date.getTime() / 86400000) + 2440587.5;
+      },
+      calculateLST(jd, longitude) {
+        const T = (jd - 2451545.0) / 36525;
+        const gmst = 280.46061837 + 360.98564736629 * (jd - 2451545.0) +
+                     T * (0.000387933 - T / 38710000);
+        return ((gmst / 15 + longitude / 15) % 24 + 24) % 24;
+      },
+      formatTime(hours) {
+        const h = Math.floor(hours);
+        const m = Math.floor((hours - h) * 60);
+        const s = Math.round((((hours - h) * 60 - m)) * 60);
+        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
       }
-    }
+    };
 
-    function setCurrentTime() {
-      const now = new Date();
-      document.getElementById('timeInput').value = now.toISOString().slice(0, 16);
-      document.getElementById('timeInput').disabled = true;
-    }
+    // ======================
+    // MOON PHASE CALCULATION (PRECISE)
+    // ======================
+    const MoonPhaseCalculator = {
+      // Known reference data
+      REFERENCE_JD: 2460742.1323265624,
+      REFERENCE_LUNAR_AGE: 8.0195500710,
+      SYNODIC_MONTH: 29.53058867,
 
-    function enableCustomTime() {
-      document.getElementById('timeInput').disabled = false;
-    }
+      getLunarAge(date) {
+        const currentJD = TimeCalculator.getJulianDate(date);
+        const jdDifference = currentJD - this.REFERENCE_JD;
+        return (this.REFERENCE_LUNAR_AGE + jdDifference) % this.SYNODIC_MONTH;
+      },
 
-    // Updated calculation function with emoji visualization for celestial positions
-    async function calculate() {
-      const lat = parseFloat(document.getElementById('lat').value);
-      const lon = parseFloat(document.getElementById('lon').value);
-      const inputTime = document.getElementById('timeInput').value;
-      const date = new Date(inputTime);
-      
-      // Convert to Julian Date with UTC correction
-      const jd = (Date.UTC(
-        date.getFullYear(),
-        date.getMonth(),
-        date.getDate(),
-        date.getHours(),
-        date.getMinutes(),
-        date.getSeconds()
-      ) / 86400000) + 2440587.5;
+      getPhase(date) {
+        const age = this.getLunarAge(date);
+        return Math.min(7, Math.floor(age / (this.SYNODIC_MONTH / 8)));
+      },
 
-      const lstHours = calculateSiderealTime(jd, lon);
-      document.getElementById('result').textContent =
-        `Local Sidereal Time: ${formatHMS(lstHours)}`;
+      getPhaseInfo(age) {
+        const phaseIndex = Math.min(7, Math.floor(age / (this.SYNODIC_MONTH / 8)));
+        const phases = [
+          { emoji: '🌑', name: 'New Moon', illum: '0%' },
+          { emoji: '🌒', name: 'Waxing Crescent', illum: '25%' },
+          { emoji: '🌓', name: 'First Quarter', illum: '50%' },
+          { emoji: '🌔', name: 'Waxing Gibbous', illum: '75%' },
+          { emoji: '🌕', name: 'Full Moon', illum: '100%' },
+          { emoji: '🌖', name: 'Waning Gibbous', illum: '75%' },
+          { emoji: '🌗', name: 'Last Quarter', illum: '50%' },
+          { emoji: '🌘', name: 'Waning Crescent', illum: '25%' }
+        ];
+        return phases[phaseIndex];
+      }
+    };
 
-      // Get accurate moon phase info
-      const moonInfo = getMoonPhaseInfo(jd);
-      
-      // Calculate celestial positions based on UTC hours
-      const hours = date.getUTCHours() + date.getUTCMinutes() / 60;
-      const sunAngle = (hours / 24) * 360; // 0° at midnight, 180° at noon, etc.
-      const positions = getCelestialPosition(jd, sunAngle);
+    // ======================
+    // CELESTIAL POSITIONING (PRECISE)
+    // ======================
+    const CelestialCalculator = {
+      calculateSunPosition(utcDate, longitude) {
+        // Improved solar position calculation using Julian Date
+        const jd = TimeCalculator.getJulianDate(utcDate);
+        const T = (jd - 2451545.0) / 36525;
 
-      // Build emoji visualization for sun and moon positions
-      const emojiContainer = document.getElementById('emojiContainer');
-      // Clear previous contents
-      emojiContainer.innerHTML = '';
+        // Sun's geometric mean longitude
+        let L0 = 280.46646 + 36000.76983 * T;
+        L0 = L0 % 360;
 
-      // Create sun emoji element
-      const sunEmoji = document.createElement('div');
-      sunEmoji.className = 'celestial-emoji';
-      sunEmoji.textContent = '🌞';
-      sunEmoji.style.left = positions.sunX + 'px';
-      sunEmoji.style.top = positions.sunY + 'px';
-      emojiContainer.appendChild(sunEmoji);
+        // Mean solar anomaly
+        const M = 357.52911 + 35999.05029 * T;
 
-      // Create moon emoji element
-      const moonEmoji = document.createElement('div');
-      moonEmoji.className = 'celestial-emoji';
-      moonEmoji.textContent = '🌜';
-      moonEmoji.style.left = positions.moonX + 'px';
-      moonEmoji.style.top = positions.moonY + 'px';
-      emojiContainer.appendChild(moonEmoji);
+        // Equation of center
+        const C = (1.914602 - 0.004817 * T) * Math.sin(M * Math.PI/180)
+                + (0.019993 - 0.000101 * T) * Math.sin(2 * M * Math.PI/180)
+                + 0.000289 * Math.sin(3 * M * Math.PI/180);
 
-      // Display moon phase info and percentage
-      document.getElementById('celestialPosition').innerHTML = `
-        <div>Moon Phase: ${moonInfo.emoji} (${moonInfo.percentage}% illuminated)</div>
+        // True longitude
+        const L_true = L0 + C;
+
+        // Convert to right ascension
+        const ε = 23.4392911 - 0.0130042 * T; // Obliquity of ecliptic
+        const α = Math.atan2(
+          Math.cos(ε * Math.PI/180) * Math.sin(L_true * Math.PI/180),
+          Math.cos(L_true * Math.PI/180)
+        ) * 180/Math.PI;
+
+        // Calculate solar time adjusted position
+        const solarTimeHours = (utcDate.getUTCHours() +
+                               utcDate.getUTCMinutes()/60 +
+                               longitude/15) % 24;
+
+        // Combine astronomical calculation with solar time
+        return ((α/15 + solarTimeHours) % 24) * 15;
+      },
+
+      calculateMoonPosition(sunAngle, lunarAge) {
+        // Moon moves ~12.2° per day relative to sun
+        const dailyMotion = 360 / MoonPhaseCalculator.SYNODIC_MONTH;
+        const moonAngle = (sunAngle + (lunarAge * dailyMotion)) % 360;
+
+        // Add 5° inclination correction
+        return (moonAngle + 5) % 360;
+      },
+
+      getCoordinates(angle) {
+        // Adjust for northern hemisphere observer perspective
+        const observerCorrected = (360 - angle + 90) % 360;
+        const rad = observerCorrected * Math.PI / 180;
+        return {
+          x: 100 + 90 * Math.cos(rad),
+          y: 100 + 90 * Math.sin(rad),
+          angle: angle % 360
+        };
+      }
+    };
+
+    // ======================
+    // UI UPDATES & HANDLERS
+    // ======================
+    function updateDisplay(solarTimeStr, utcDate, lst, sunPos, moonPos, moonInfo) {
+      document.getElementById("result").innerHTML = `
+        Local Sidereal Time: <strong>${TimeCalculator.formatTime(lst)}</strong>
+      `;
+      document.getElementById("timeVerification").innerHTML = `
+        Local Solar Time: ${solarTimeStr}<br>
+        Input UTC Time: ${utcDate.toUTCString().split(' ')[4]}<br>
+        Julian Date: ${TimeCalculator.getJulianDate(utcDate).toFixed(5)}
+      `;
+
+      const container = document.getElementById('emojiContainer');
+      container.innerHTML = '';
+      [['🌞', sunPos], ['🌜', moonPos]].forEach(([emoji, pos]) => {
+        const el = document.createElement('div');
+        el.className = 'celestial-emoji';
+        el.textContent = emoji;
+        el.style.left = `${pos.x}px`;
+        el.style.top = `${pos.y}px`;
+        container.appendChild(el);
+      });
+      document.getElementById("celestialPosition").innerHTML = `
+        Moon Phase: ${moonInfo.emoji} (${moonInfo.illum} illuminated)<br>
+        Sun Position: ${sunPos.angle.toFixed(1)}° (True Solar Time: ${(sunPos.angle/15).toFixed(1)}h)
       `;
     }
 
-    // Initial setup: automatically use current time and location, then calculate LST.
+    async function calculate() {
+      const inputDate = TimeManager.getUTCDate(document.getElementById('timeInput').value);
+      const lat = parseFloat(document.getElementById('lat').value);
+      const lon = parseFloat(document.getElementById('lon').value);
+
+      const jd = TimeCalculator.getJulianDate(inputDate);
+      const lst = TimeCalculator.calculateLST(jd, lon);
+
+      // Sun position
+      const sunAngle = CelestialCalculator.calculateSunPosition(inputDate, lon);
+
+      // Moon position
+      const lunarAge = MoonPhaseCalculator.getLunarAge(inputDate);
+      const moonAngle = CelestialCalculator.calculateMoonPosition(sunAngle, lunarAge);
+      const moonInfo = MoonPhaseCalculator.getPhaseInfo(lunarAge);
+
+      // Solar time calculation
+      const solarTimeHours = (inputDate.getUTCHours() +
+                            inputDate.getUTCMinutes()/60 +
+                            lon/15) % 24;
+      const solarTimeStr = TimeCalculator.formatTime(solarTimeHours);
+
+      updateDisplay(
+        solarTimeStr,
+        inputDate,
+        lst,
+        CelestialCalculator.getCoordinates(sunAngle),
+        CelestialCalculator.getCoordinates(moonAngle),
+        moonInfo
+      );
+    }
+
+    // ==================
+    // UI HANDLERS
+    // ==================
+    const LocationHandler = {
+      async detect() {
+        return new Promise((resolve) => {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (pos) => {
+                this.updateCoords(pos.coords.latitude, pos.coords.longitude);
+                resolve(true);
+              },
+              async (error) => {
+                try {
+                  const ipRes = await fetch('https://ipapi.co/json/');
+                  const ipData = await ipRes.json();
+                  this.updateCoords(ipData.latitude, ipData.longitude);
+                  resolve(true);
+                } catch (ipError) {
+                  this.showManual();
+                  resolve(false);
+                }
+              }
+            );
+          } else {
+            fetch('https://ipapi.co/json/')
+              .then(ipRes => ipRes.json())
+              .then(ipData => {
+                this.updateCoords(ipData.latitude, ipData.longitude);
+                resolve(true);
+              })
+              .catch(() => {
+                this.showManual();
+                resolve(false);
+              });
+          }
+        });
+      },
+      updateCoords(lat, lon) {
+        document.getElementById('lat').value = lat.toFixed(4);
+        document.getElementById('lon').value = lon.toFixed(4);
+        this.showManual();
+      },
+      showManual() {
+        document.getElementById('manualLocation').style.display = 'block';
+        document.getElementById('citySelect').value = '';
+      }
+    };
+
+    const TimeHandler = {
+      setCurrent() {
+        TimeManager.setUTCDateInput(new Date());
+        document.getElementById('timeInput').disabled = true;
+      },
+      enableCustom() {
+        document.getElementById('timeInput').disabled = false;
+      }
+    };
+    // ======================
+    // INITIALIZATION & EVENTS
+    // ======================
     window.onload = async function() {
-      setCurrentTime();
-      await detectLocation();
+      const initDate = new Date();
+      TimeManager.setUTCDateInput(initDate);
+      await LocationHandler.detect();
       calculate();
     };
+    window.setCurrentTime = function() {
+      TimeHandler.setCurrent();
+      calculate();
+    };
+    window.enableCustomTime = () => TimeHandler.enableCustom();
+    window.updateCity = () => {
+      const [lat, lon] = document.getElementById('citySelect').value.split(',');
+      if (lat && lon) LocationHandler.updateCoords(lat, lon);
+    };
+    window.detectLocation = () => LocationHandler.detect().then(calculate);
+    window.showManualLocation = () => LocationHandler.showManual();
   </script>
 </body>
 </html>
