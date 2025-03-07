@@ -6,23 +6,35 @@
   <title>Sidereal Time Calculator</title>
   <style>
     :root {
-      --bg: #f0f2f5;
+      --bg: #eef2f7;
       --card: #ffffff;
-      --text: #1a1a1a;
+      --text: #333;
+      --primary: #218bff;
+      --accent: #ffd700;
+      --border: #ccc;
     }
     body {
-      font-family: system-ui, -apple-system, sans-serif;
-      max-width: 600px;
-      margin: 2rem auto;
-      padding: 0 1rem;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: var(--bg);
       color: var(--text);
+      margin: 0;
+      padding: 1rem;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      max-width: 600px;
+      width: 100%;
     }
     .card {
       background: var(--card);
-      padding: 2rem;
-      border-radius: 1rem;
+      padding: 1.5rem 2rem;
+      border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      margin-bottom: 1.5rem;
+    }
+    h1 {
+      text-align: center;
       margin-bottom: 1rem;
     }
     .input-group {
@@ -31,103 +43,125 @@
     label {
       display: block;
       margin-bottom: 0.5rem;
-      font-weight: 500;
+      font-weight: 600;
     }
     input,
     select,
     button {
-      padding: 0.5rem;
-      border: 1px solid #ddd;
-      border-radius: 0.5rem;
+      padding: 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
       width: 100%;
       box-sizing: border-box;
+      font-size: 1rem;
     }
     button {
-      background: #218bff;
-      color: white;
-      border: none;
+      background: var(--primary);
+      color: #fff;
       cursor: pointer;
-      transition: opacity 0.2s;
+      transition: opacity 0.2s ease;
+      margin-top: 0.5rem;
     }
     button:hover {
-      opacity: 0.8;
-    }
-    .celestial {
-      font-size: 1.8rem;
-      text-align: center;
-      margin: 1rem 0;
-      line-height: 1.5;
-    }
-    .result {
-      font-size: 1.5rem;
-      text-align: center;
-      font-weight: bold;
-      margin: 1rem 0;
+      opacity: 0.9;
     }
     .toggle-group {
       display: flex;
       gap: 0.5rem;
-      margin: 1rem 0;
+      margin-bottom: 0.5rem;
     }
     .toggle-group button {
       flex: 1;
+      padding: 0.5rem;
+      font-size: 0.9rem;
+    }
+    .result {
+      font-size: 1.4rem;
+      text-align: center;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    .celestial {
+      font-size: 1.2rem;
+      text-align: center;
+      margin-bottom: 1rem;
     }
     /* Emoji container for celestial positions */
     #emojiContainer {
       position: relative;
-      width: 200px;
-      height: 200px;
-      margin: 1rem auto;
-      border: 2px dashed #ddd;
+      width: 220px;
+      height: 220px;
+      margin: 0 auto 1rem auto;
+      border: 2px dashed var(--border);
       border-radius: 50%;
+      background-color: #fafafa;
     }
     .celestial-emoji {
       position: absolute;
-      font-size: 24px;
-      width: 24px;
-      height: 24px;
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
       transform: translate(-50%, -50%);
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>🌌 Sidereal Time Calculator</h1>
+  <div class="container">
+    <div class="card">
+      <h1>🌌 Sidereal Time Calculator</h1>
 
-    <div class="input-group">
-      <label>Location:</label>
-      <div class="toggle-group">
-        <button onclick="detectLocation()">📍 Detect IP</button>
-        <button onclick="showManualLocation()">📝 Manual</button>
+      <div class="input-group">
+        <label>Location:</label>
+        <div class="toggle-group">
+          <button onclick="detectLocation(); calculate();">📍 Detect IP</button>
+          <button onclick="showManualLocation()">📝 Manual</button>
+        </div>
+        <select id="citySelect" onchange="updateCity()">
+          <option value="">Select City</option>
+          <option value="13.7563,100.5018">Bangkok (13.8°N, 100.5°E)</option>
+          <option value="39.9042,116.4074">Beijing (39.9°N, 116.4°E)</option>
+          <option value="-34.6037,-58.3816">Buenos Aires (34.6°S, 58.4°W)</option>
+          <option value="30.0444,31.2357">Cairo (30.0°N, 31.2°E)</option>
+          <option value="28.7041,77.1025">Delhi (28.7°N, 77.1°E)</option>
+          <option value="23.8103,90.4125">Dhaka (23.8°N, 90.4°E)</option>
+          <option value="41.0082,28.9784">Istanbul (41.0°N, 29.0°E)</option>
+          <option value="-6.2088,106.8456">Jakarta (6.2°S, 106.8°E)</option>
+          <option value="24.8607,67.0011">Karachi (24.9°N, 67.0°E)</option>
+          <option value="22.5726,88.3639">Kolkata (22.6°N, 88.4°E)</option>
+          <option value="51.5074,-0.1278">London (51.5°N, 0.1°W)</option>
+          <option value="34.0522,-118.2437">Los Angeles (34.1°N, 118.2°W)</option>
+          <option value="19.4326,-99.1332">Mexico City (19.4°N, 99.1°W)</option>
+          <option value="55.7558,37.6173">Moscow (55.8°N, 37.6°E)</option>
+          <option value="19.0760,72.8777">Mumbai (19.1°N, 72.9°E)</option>
+          <option value="40.7128,-74.0060">New York (40.7°N, 74.0°W)</option>
+          <option value="-22.9068,-43.1729">Rio de Janeiro (22.9°S, 43.2°W)</option>
+          <option value="-23.5505,-46.6333">São Paulo (23.6°S, 46.6°W)</option>
+          <option value="37.5665,126.9780">Seoul (37.6°N, 127.0°E)</option>
+          <option value="35.6895,139.6917">Tokyo (35.7°N, 139.7°E)</option>
+        </select>
+        <div id="manualLocation" style="display: none; margin-top: 0.5rem;">
+          <input type="number" id="lat" step="0.0001" placeholder="Latitude" />
+          <input type="number" id="lon" step="0.0001" placeholder="Longitude" style="margin-top: 0.5rem;" />
+        </div>
       </div>
-      <select id="citySelect" onchange="updateCity()">
-        <option value="">Select City</option>
-        <option value="51.5074,-0.1278">London (51.5°N, 0.1°W)</option>
-        <option value="40.7128,-74.0060">New York (40.7°N, 74°W)</option>
-        <option value="35.6762,139.6503">Tokyo (35.7°N, 139.7°E)</option>
-      </select>
-      <div id="manualLocation" style="display: none;">
-        <input type="number" id="lat" step="0.0001" placeholder="Latitude" />
-        <input type="number" id="lon" step="0.0001" placeholder="Longitude" />
+
+      <div class="input-group">
+        <label>Time (UTC): </label>
+        <div class="toggle-group">
+          <button onclick="setCurrentTime(); calculate();">⏱ Now</button>
+          <button onclick="enableCustomTime()">📅 Custom</button>
+        </div>
+        <input type="datetime-local" id="timeInput" disabled />
       </div>
+
+      <button onclick="calculate()">🚀 Calculate</button>
     </div>
 
-    <div class="input-group">
-      <label>Time:</label>
-      <div class="toggle-group">
-        <button onclick="setCurrentTime()">⏱ Now</button>
-        <button onclick="enableCustomTime()">📅 Custom</button>
-      </div>
-      <input type="datetime-local" id="timeInput" disabled />
+    <div class="card">
+      <div class="result" id="result">Sidereal Time:</div>
+      <div class="celestial" id="celestialPosition"></div>
+      <div id="emojiContainer"></div>
     </div>
-
-    <button onclick="calculate()">🚀 Calculate</button>
-  </div>
-
-  <div class="card">
-    <div class="result" id="result">Sidereal Time:</div>
-    <div class="celestial" id="celestialPosition"></div>
-    <div id="emojiContainer"></div>
   </div>
 
   <script>
@@ -279,8 +313,12 @@
       `;
     }
 
-    // Initial setup
-    setCurrentTime();
+    // Initial setup: automatically use current time and location, then calculate LST.
+    window.onload = async function() {
+      setCurrentTime();
+      await detectLocation();
+      calculate();
+    };
   </script>
 </body>
 </html>
