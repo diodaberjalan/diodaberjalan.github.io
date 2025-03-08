@@ -45,9 +45,7 @@
       margin-bottom: 0.5rem;
       font-weight: 600;
     }
-    input,
-    select,
-    button {
+    input, select, button {
       padding: 0.6rem;
       border: 1px solid var(--border);
       border-radius: 4px;
@@ -77,32 +75,69 @@
     }
     .result {
       font-size: 1.2rem;
-      text-align: left; /* Changed to left alignment for time verification */
+      text-align: left;
       font-weight: 600;
-      margin-bottom: 0.8rem; /* Reduced margin */
-      line-height: 1.4; /* Added line height for better readability */
+      margin-bottom: 0.8rem;
+      line-height: 1.4;
     }
     .celestial {
       font-size: 1.2rem;
       text-align: center;
       margin-bottom: 1rem;
     }
-    /* Emoji container for celestial positions */
+    /* Emoji container and circle adjustments */
     #emojiContainer {
       position: relative;
-      width: 220px;
-      height: 220px;
+      width: 75vw; /* Enlarge to 75% of viewport width */
+      height: 75vw; /* Square aspect ratio */
+      max-width: 450px; /* Increased max-width for larger screens */
+      max-height: 450px; /* Increased max-height for larger screens */
       margin: 0 auto 1rem auto;
       border: 2px dashed var(--border);
       border-radius: 50%;
       background-color: #fafafa;
+      overflow: hidden;
+      display: flex; /* Use flexbox for centering */
+      justify-content: center;
+      align-items: center;
     }
     .celestial-emoji {
       position: absolute;
-      font-size: 32px;
-      width: 32px;
-      height: 32px;
+      font-size: 1.8rem; /* Proportional emoji size */
+      width: 1.8rem;
+      height: 1.8rem;
+      line-height: 1.8rem;
+      text-align: center;
       transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 3; /* Above labels and horizon */
+    }
+    .celestial-label {
+      position: absolute;
+      font-size: 0.7rem;
+      color: #666;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 2; /* Above horizon, below emojis */
+      background-color: var(--card); /* Background to make label stand out */
+      padding: 0 2px; /* Add some padding */
+      border-radius: 2px; /* Slightly rounded corners */
+    }
+    .aries-label {
+      color: var(--primary);
+      font-weight: bold;
+    }
+    /* Horizon line */
+    .horizon {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 100%;
+      height: 2px;
+      background-color: var(--border);
+      transform: translateY(-50%);
+      z-index: 1; /* Below labels and emojis */
     }
   </style>
 </head>
@@ -158,9 +193,16 @@
       <div class="result" id="result">Local Sidereal Time:</div>
       <div class="result" id="timeVerification"></div>
       <div class="celestial" id="celestialPosition"></div>
-      <div id="emojiContainer"></div>
+      <div id="emojiContainer">
+        <div class="horizon"></div>  <!-- Horizon line -->
+      </div>
+      <div class="input-group">  <!-- Moved toggle below image -->
+        <label>Display Options:</label>
+        <label><input type="checkbox" id="gammaToggle" checked onchange="calculate()"> Gamma Point (♈)</label>
+      </div>
     </div>
   </div>
+
   <script>
     // ======================
     // CORE TIME HANDLING
@@ -240,10 +282,10 @@
     };
 
     // ======================
-    // CELESTIAL POSITIONING (PRECISE)
+    // UPDATED CELESTIAL POSITIONING
     // ======================
-    const CelestialCalculator = {
-      calculateSunPosition(utcDate, longitude) {
+     const CelestialCalculator = {
+      calculateSunPosition(utcDate) {
         // Improved solar position calculation using Julian Date
         const jd = TimeCalculator.getJulianDate(utcDate);
         const T = (jd - 2451545.0) / 36525;
@@ -269,41 +311,36 @@
           Math.cos(ε * Math.PI/180) * Math.sin(L_true * Math.PI/180),
           Math.cos(L_true * Math.PI/180)
         ) * 180/Math.PI;
-
-        // Calculate solar time adjusted position
-        const solarTimeHours = (utcDate.getUTCHours() +
-                               utcDate.getUTCMinutes()/60 +
-                               longitude/15) % 24;
-
-        // Combine astronomical calculation with solar time
-        return ((α/15 + solarTimeHours) % 24) * 15;
+        return α;
       },
 
-      calculateMoonPosition(sunAngle, lunarAge) {
-        // Moon moves ~12.2° per day relative to sun
-        const dailyMotion = 360 / MoonPhaseCalculator.SYNODIC_MONTH;
-        const moonAngle = (sunAngle + (lunarAge * dailyMotion)) % 360;
-
-        // Add 5° inclination correction
-        return (moonAngle + 5) % 360;
+      calculateMoonPosition(sunRA, lunarAge) {
+        // Moon RA relative to sun and lunar age (simplified)
+        const moonRA = (sunRA + (lunarAge / MoonPhaseCalculator.SYNODIC_MONTH) * 360 ) % 360;
+        return moonRA;
       },
 
-      getCoordinates(angle) {
-        // Adjust for northern hemisphere observer perspective
-        const observerCorrected = (360 - angle + 90) % 360;
-        const rad = observerCorrected * Math.PI / 180;
+      getCoordinates(haDegrees) {
+        // Convert hour angle to circle position
+        const theta = (360 - haDegrees) % 360;
+        const rad = theta * Math.PI / 180;
         return {
-          x: 100 + 90 * Math.cos(rad),
-          y: 100 + 90 * Math.sin(rad),
-          angle: angle % 360
+          x: 50 + 45 * Math.sin(rad),  // Radius adjusted for label space
+          y: 50 - 45 * Math.cos(rad),  // Radius adjusted for label space
+          angle: theta
         };
+      },
+
+      getAriesPosition(lstHours) {
+        const haDegrees = lstHours * 15; // Convert LST to degrees
+        return this.getCoordinates(haDegrees);
       }
     };
 
     // ======================
     // UI UPDATES & HANDLERS
     // ======================
-    function updateDisplay(solarTimeStr, utcDate, lst, sunPos, moonPos, moonInfo) {
+    function updateDisplay(solarTimeStr, utcDate, lst, sunPos, moonPos, moonInfo, ariesPos) {
       document.getElementById("result").innerHTML = `
         Local Sidereal Time: <strong>${TimeCalculator.formatTime(lst)}</strong>
       `;
@@ -314,36 +351,82 @@
       `;
 
       const container = document.getElementById('emojiContainer');
-      container.innerHTML = '';
+      container.innerHTML = ''; // Clear previous content
+
+      // Add horizon line (below everything)
+      const horizon = document.createElement('div');
+      container.appendChild(horizon);
+      horizon.className = 'horizon';
+
+
+      // Add directional labels (above horizon, below emojis)
+      const labels = [
+        { text: 'W', x: 5, y: 50 },
+        { text: 'E', x: 95, y: 50 },
+        { text: 'Zenith', x: 50, y: 5 },
+        { text: 'Nadir', x: 50, y: 95 }
+      ];
+
+      labels.forEach(label => {
+        const el = document.createElement('div');
+        el.className = 'celestial-label';
+        el.textContent = label.text;
+        el.style.left = `${label.x}%`; // Use percentage for container relative position
+        el.style.top = `${label.y}%`;  // Use percentage for container relative position
+        container.appendChild(el);
+      });
+
+      // Add Gamma Point (Aries) label and emoji conditionally
+      if (document.getElementById('gammaToggle').checked) {
+          const ariesEl = document.createElement('div');
+          ariesEl.className = 'celestial-label aries-label';
+          ariesEl.textContent = '♈ RA 0°';
+          ariesEl.style.left = `${ariesPos.x}%`; // Use percentage
+          ariesEl.style.top = `${ariesPos.y}%`;  // Use percentage
+          container.appendChild(ariesEl);
+      }
+
+
+      // Add celestial bodies (above labels and horizon)
       [['🌞', sunPos], ['🌜', moonPos]].forEach(([emoji, pos]) => {
         const el = document.createElement('div');
         el.className = 'celestial-emoji';
         el.textContent = emoji;
-        el.style.left = `${pos.x}px`;
-        el.style.top = `${pos.y}px`;
+        el.style.left = `${pos.x}%`; // Use percentage
+        el.style.top = `${pos.y}%`;  // Use percentage
         container.appendChild(el);
       });
-      document.getElementById("celestialPosition").innerHTML = `
+
+
+       document.getElementById("celestialPosition").innerHTML = `
         Moon Phase: ${moonInfo.emoji} (${moonInfo.illum} illuminated)<br>
-        Sun Position: ${sunPos.angle.toFixed(1)}° (True Solar Time: ${(sunPos.angle/15).toFixed(1)}h)
+        Sun RA: ${sunPos.angle.toFixed(2)}°, Moon RA: ${moonPos.angle.toFixed(2)}°
       `;
     }
 
     async function calculate() {
       const inputDate = TimeManager.getUTCDate(document.getElementById('timeInput').value);
-      const lat = parseFloat(document.getElementById('lat').value);
       const lon = parseFloat(document.getElementById('lon').value);
 
+      // Calculate positions using hour angles
       const jd = TimeCalculator.getJulianDate(inputDate);
       const lst = TimeCalculator.calculateLST(jd, lon);
 
       // Sun position
-      const sunAngle = CelestialCalculator.calculateSunPosition(inputDate, lon);
+      const sunRA = CelestialCalculator.calculateSunPosition(inputDate);
+      const sunHA = (lst * 15 - sunRA + 360) % 360; // Ensure positive HA
 
       // Moon position
       const lunarAge = MoonPhaseCalculator.getLunarAge(inputDate);
-      const moonAngle = CelestialCalculator.calculateMoonPosition(sunAngle, lunarAge);
+      const moonRA = CelestialCalculator.calculateMoonPosition(sunRA, lunarAge);
+      const moonHA = (lst * 15 - moonRA + 360) % 360; // Ensure positive HA
       const moonInfo = MoonPhaseCalculator.getPhaseInfo(lunarAge);
+
+      // Get Aries point position
+      const ariesPos = CelestialCalculator.getAriesPosition(lst);
+      const sunPosCoords = CelestialCalculator.getCoordinates(sunHA);
+      const moonPosCoords = CelestialCalculator.getCoordinates(moonHA);
+      const ariesPosCoords = CelestialCalculator.getCoordinates(lst * 15); // Aries HA is 0, so position based on LST
 
       // Solar time calculation
       const solarTimeHours = (inputDate.getUTCHours() +
@@ -351,13 +434,15 @@
                             lon/15) % 24;
       const solarTimeStr = TimeCalculator.formatTime(solarTimeHours);
 
+
       updateDisplay(
         solarTimeStr,
         inputDate,
         lst,
-        CelestialCalculator.getCoordinates(sunAngle),
-        CelestialCalculator.getCoordinates(moonAngle),
-        moonInfo
+        sunPosCoords,
+        moonPosCoords,
+        moonInfo,
+        ariesPosCoords
       );
     }
 
