@@ -15,6 +15,24 @@
       padding: 10px;
       margin-bottom: 10px;
       border-radius: 8px;
+      position: relative;
+    }
+    .distribution h3 {
+      margin-top: 0;
+    }
+    .remove-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background-color: #d9534f;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .remove-btn:hover {
+      background-color: #c9302c;
     }
     h1, h2 {
       color: #333;
@@ -52,6 +70,7 @@
   <div id="distributions-container">
     <!-- Pre-loaded distributions -->
     <div class="distribution" data-index="0">
+      <button class="remove-btn" onclick="removeDistribution(this)">Remove</button>
       <h3>Method A</h3>
       <label>Type:
         <select class="dist-type">
@@ -69,6 +88,7 @@
       </div>
     </div>
     <div class="distribution" data-index="1">
+      <button class="remove-btn" onclick="removeDistribution(this)">Remove</button>
       <h3>Method B</h3>
       <label>Type:
         <select class="dist-type">
@@ -105,6 +125,17 @@
   <div id="results"></div>
   
   <script>
+    // Remove distribution function
+    function removeDistribution(btn) {
+      const container = document.getElementById('distributions-container');
+      // Only remove if more than one distribution remains
+      if (container.children.length > 1) {
+        container.removeChild(btn.parentElement);
+      } else {
+        alert("At least one distribution is required!");
+      }
+    }
+    
     // Define probability density functions
     function gaussian(x, mean, std) {
       return Math.exp(-0.5 * Math.pow((x - mean) / std, 2)) / (std * Math.sqrt(2 * Math.PI));
@@ -139,6 +170,7 @@
       div.className = 'distribution';
       div.setAttribute('data-index', index);
       div.innerHTML = `
+        <button class="remove-btn" onclick="removeDistribution(this)">Remove</button>
         <h3>Method ${String.fromCharCode(65 + index)}</h3>
         <label>Type:
           <select class="dist-type">
