@@ -6,129 +6,282 @@
   <!-- Updated Plotly CDN to explicit version v2.18.2 -->
   <script src="https://cdn.plot.ly/plotly-2.18.2.min.js"></script>
   <style>
+    /* General Styles */
     body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f7f7f7;
+      margin: 0;
+      padding: 0;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
-    .distribution {
-      border: 1px solid #ccc;
-      padding: 10px;
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px;
+      flex: 1;
+    }
+    h1, h2 {
+      text-align: center;
       margin-bottom: 10px;
+    }
+    p.description {
+      text-align: center;
+      margin: 10px auto 30px;
+      max-width: 800px;
+      line-height: 1.5;
+      font-size: 1.1em;
+    }
+    /* Help Button and Info Styles */
+    .help-btn {
+      display: inline-block;
+      margin: 0 auto 20px;
+      cursor: pointer;
+      background: #337ab7;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 50%;
+      font-size: 1em;
+    }
+    .help-btn:hover {
+      background: #286090;
+    }
+    .info-box {
+      display: none;
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      font-size: 0.95em;
+      line-height: 1.5;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    /* Distribution Box Styles */
+    .distribution {
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin-bottom: 15px;
       border-radius: 8px;
       position: relative;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     .distribution h3 {
-      margin-top: 0;
+      margin: 0 0 10px;
+      font-size: 1.2em;
     }
     .remove-btn {
       position: absolute;
-      top: 5px;
-      right: 5px;
+      top: 10px;
+      right: 10px;
       background-color: #d9534f;
       color: white;
       border: none;
       padding: 4px 8px;
       border-radius: 4px;
       cursor: pointer;
+      font-size: 0.9em;
     }
     .remove-btn:hover {
       background-color: #c9302c;
     }
-    h1, h2 {
-      color: #333;
-    }
     label {
-      margin-right: 10px;
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.95em;
     }
+    select, input {
+      padding: 6px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-top: 4px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .params {
+      margin-left: 10px;
+      margin-bottom: 10px;
+    }
+    /* Button Styles */
     button {
-      margin: 10px 0;
-      padding: 8px 16px;
+      padding: 10px 20px;
+      border: none;
       border-radius: 4px;
       background-color: #4CAF50;
       color: white;
-      border: none;
       cursor: pointer;
+      font-size: 1em;
+      margin: 10px 0;
     }
     button:hover {
       background-color: #45a049;
     }
-    select, input {
-      margin: 5px;
+    #add-distribution {
+      background-color: #337ab7;
+    }
+    #add-distribution:hover {
+      background-color: #286090;
+    }
+    /* Combination Settings */
+    .combination-settings {
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    /* Plot and Results */
+    #plot {
+      margin: 20px auto;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     #results {
-      margin-top: 15px;
-      padding: 10px;
-      background: #f0f0f0;
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 15px;
       border-radius: 8px;
+      margin-top: 20px;
+      text-align: center;
+      font-size: 1.1em;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    /* Footer Styles */
+    footer {
+      text-align: center;
+      padding: 15px 0;
+      background: #eee;
+      font-size: 0.9em;
+      color: #666;
     }
   </style>
 </head>
 <body>
-  <h1>Forensic Age Estimation Combiner (⁠✿⁠^⁠‿⁠^⁠)</h1>
-  <p>This tool lets you add multiple age estimation methods, select their distribution type (Gaussian or Uniform), choose the combination method (Product or Union), and see the final combined distribution along with an estimation summary. Perfect for forensics combining different clues!</p>
-
-  <div id="distributions-container">
-    <!-- Pre-loaded distributions -->
-    <div class="distribution" data-index="0">
-      <button class="remove-btn" onclick="removeDistribution(this)">Remove</button>
-      <h3>Method A</h3>
-      <label>Type:
-        <select class="dist-type">
-          <option value="gaussian" selected>Gaussian</option>
-          <option value="uniform">Uniform</option>
-        </select>
-      </label>
-      <div class="params gaussian-params">
-        <label>Mean: <input type="number" class="mean" value="20"></label>
-        <label>Std Dev: <input type="number" class="std" value="5"></label>
+  <div class="container">
+    <h1>Forensic Age Estimation Combiner (⁠✿⁠^⁠‿⁠^⁠)</h1>
+    <p class="description">
+      Add multiple age estimation methods, choose their distribution type (Gaussian or Uniform), pick the combination method (Product or Union), and view the final combined distribution with an estimation summary.
+    </p>
+    <div style="text-align: center;">
+      <button class="help-btn" onclick="toggleHelp()">?</button>
+    </div>
+    <div class="info-box" id="help-description">
+      <h3>How to Use the Tool</h3>
+      <strong>Distributions:</strong>
+      <ul>
+        <li><strong>Gaussian (Normal Distribution):</strong> Use this when your estimation is provided as a central value with an error margin (e.g., "10 ± error"). It uses a bell-shaped curve defined by a mean and standard deviation, reflecting random measurement uncertainties that cluster around the true value.</li>
+        <li><strong>Uniform Distribution:</strong> Use this when the possible values are strictly confined within a range. For example, if an ID card specifies that someone must be older than 17, then the age is uniformly distributed from 17 to an upper limit. Every value in the range is equally likely.</li>
+      </ul>
+      <strong>Combination Methods:</strong>
+      <ul>
+        <li><strong>Product (Intersection):</strong> This approach multiplies the probability density functions from each method. It assumes all methods are correct and consistent, emphasizing the overlapping region where all distributions agree. This often results in a sharper, more precise combined distribution.</li>
+        <li><strong>Union (Mixture):</strong> This method averages the distributions, creating a mixture model. It is used when you are not completely sure which method is most accurate, so it combines the varied evidence into a broader distribution that accounts for the different sources.</li>
+      </ul>
+    </div>
+    
+    <!-- Distribution Inputs -->
+    <div id="distributions-container">
+      <div class="distribution" data-index="0">
+        <button class="remove-btn" onclick="removeDistribution(this)">Remove</button>
+        <h3>Method A</h3>
+        <label>
+          Type:
+          <select class="dist-type">
+            <option value="gaussian" selected>Gaussian</option>
+            <option value="uniform">Uniform</option>
+          </select>
+        </label>
+        <div class="params gaussian-params">
+          <label>Mean:
+            <input type="number" class="mean" value="20">
+          </label>
+          <label>Std Dev:
+            <input type="number" class="std" value="5">
+          </label>
+        </div>
+        <div class="params uniform-params" style="display:none;">
+          <label>Min:
+            <input type="number" class="min" value="0">
+          </label>
+          <label>Max:
+            <input type="number" class="max" value="100">
+          </label>
+        </div>
       </div>
-      <div class="params uniform-params" style="display:none;">
-        <label>Min: <input type="number" class="min" value="0"></label>
-        <label>Max: <input type="number" class="max" value="100"></label>
+      <div class="distribution" data-index="1">
+        <button class="remove-btn" onclick="removeDistribution(this)">Remove</button>
+        <h3>Method B</h3>
+        <label>
+          Type:
+          <select class="dist-type">
+            <option value="uniform" selected>Uniform</option>
+            <option value="gaussian">Gaussian</option>
+          </select>
+        </label>
+        <div class="params gaussian-params" style="display:none;">
+          <label>Mean:
+            <input type="number" class="mean" value="30">
+          </label>
+          <label>Std Dev:
+            <input type="number" class="std" value="5">
+          </label>
+        </div>
+        <div class="params uniform-params">
+          <label>Min:
+            <input type="number" class="min" value="0">
+          </label>
+          <label>Max:
+            <input type="number" class="max" value="100">
+          </label>
+        </div>
       </div>
     </div>
-    <div class="distribution" data-index="1">
-      <button class="remove-btn" onclick="removeDistribution(this)">Remove</button>
-      <h3>Method B</h3>
-      <label>Type:
-        <select class="dist-type">
-          <option value="uniform" selected>Uniform</option>
-          <option value="gaussian">Gaussian</option>
+    
+    <button id="add-distribution">Add New Distribution</button>
+    
+    <!-- Combination Settings -->
+    <div class="combination-settings">
+      <h2>Combination Settings</h2>
+      <label>
+        Combine using:
+        <select id="combination-method">
+          <option value="product">Product (Intersection)</option>
+          <option value="union">Union (Mixture)</option>
         </select>
       </label>
-      <div class="params gaussian-params" style="display:none;">
-        <label>Mean: <input type="number" class="mean" value="30"></label>
-        <label>Std Dev: <input type="number" class="std" value="5"></label>
-      </div>
-      <div class="params uniform-params">
-        <label>Min: <input type="number" class="min" value="0"></label>
-        <label>Max: <input type="number" class="max" value="100"></label>
-      </div>
     </div>
+    
+    <button id="calculate">Calculate Combined Distribution</button>
+    
+    <div id="plot" style="width:100%; height:500px;"></div>
+    
+    <div id="results"></div>
   </div>
   
-  <button id="add-distribution">Add New Distribution</button>
-  
-  <h2>Combination Settings</h2>
-  <label>Combine using:
-    <select id="combination-method">
-      <option value="product">Product (Intersection)</option>
-      <option value="union">Union (Mixture)</option>
-    </select>
-  </label>
-  
-  <br>
-  <button id="calculate">Calculate Combined Distribution</button>
-  
-  <div id="plot" style="width:100%; height:500px;"></div>
-  
-  <div id="results"></div>
+  <footer>
+    &copy; diodaberjalan.github.io &mdash; with the help of ChatGPT (for reference only)
+  </footer>
   
   <script>
+    // Toggle help description visibility
+    function toggleHelp() {
+      const helpBox = document.getElementById('help-description');
+      helpBox.style.display = (helpBox.style.display === 'none' || helpBox.style.display === '') ? 'block' : 'none';
+    }
+    
     // Remove distribution function
     function removeDistribution(btn) {
       const container = document.getElementById('distributions-container');
-      // Only remove if more than one distribution remains
       if (container.children.length > 1) {
         container.removeChild(btn.parentElement);
       } else {
@@ -136,7 +289,7 @@
       }
     }
     
-    // Define probability density functions
+    // Probability density functions
     function gaussian(x, mean, std) {
       return Math.exp(-0.5 * Math.pow((x - mean) / std, 2)) / (std * Math.sqrt(2 * Math.PI));
     }
@@ -172,19 +325,28 @@
       div.innerHTML = `
         <button class="remove-btn" onclick="removeDistribution(this)">Remove</button>
         <h3>Method ${String.fromCharCode(65 + index)}</h3>
-        <label>Type:
+        <label>
+          Type:
           <select class="dist-type">
             <option value="gaussian" selected>Gaussian</option>
             <option value="uniform">Uniform</option>
           </select>
         </label>
         <div class="params gaussian-params">
-          <label>Mean: <input type="number" class="mean" value="30"></label>
-          <label>Std Dev: <input type="number" class="std" value="5"></label>
+          <label>Mean:
+            <input type="number" class="mean" value="30">
+          </label>
+          <label>Std Dev:
+            <input type="number" class="std" value="5">
+          </label>
         </div>
         <div class="params uniform-params" style="display:none;">
-          <label>Min: <input type="number" class="min" value="0"></label>
-          <label>Max: <input type="number" class="max" value="100"></label>
+          <label>Min:
+            <input type="number" class="min" value="0">
+          </label>
+          <label>Max:
+            <input type="number" class="max" value="100">
+          </label>
         </div>
       `;
       container.appendChild(div);
