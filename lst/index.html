@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sidereal Time Calculator</title>
+  <style>
+    :root {
+      --bg: #eef2f7;
+      --card: #ffffff;
+      --text: #333;
+      --primary: #218bff;
+      --accent: #ffd700;
+      --border: #ccc;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 1rem;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      max-width: 600px;
+      width: 100%;
+    }
+    .card {
+      background: var(--card);
+      padding: 1.5rem 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      margin-bottom: 1.5rem;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .input-group {
+      margin: 1rem 0;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+    input, select, button {
+      padding: 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      width: 100%;
+      box-sizing: border-box;
+      font-size: 1rem;
+    }
+    button {
+      background: var(--primary);
+      color: #fff;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+      margin-top: 0.5rem;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    .toggle-group {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .toggle-group button {
+      flex: 1;
+      padding: 0.5rem;
+      font-size: 0.9rem;
+    }
+    .result {
+      font-size: 1.2rem;
+      text-align: left;
+      font-weight: 600;
+      margin-bottom: 0.8rem;
+      line-height: 1.4;
+    }
+    .celestial {
+      font-size: 1.2rem;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    /* Emoji container and circle adjustments */
+    #emojiContainer {
+      position: relative;
+      width: 75vw; /* Enlarge to 75% of viewport width */
+      height: 75vw; /* Square aspect ratio */
+      max-width: 450px; /* Increased max-width for larger screens */
+      max-height: 450px; /* Increased max-height for larger screens */
+      margin: 0 auto 1rem auto;
+      border: 2px dashed var(--border);
+      border-radius: 50%;
+      background-color: #fafafa;
+      overflow: hidden;
+      display: flex; /* Use flexbox for centering */
+      justify-content: center;
+      align-items: center;
+    }
+    .celestial-emoji {
+      position: absolute;
+      font-size: 1.8rem; /* Proportional emoji size */
+      width: 1.8rem;
+      height: 1.8rem;
+      line-height: 1.8rem;
+      text-align: center;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 3; /* Above labels and horizon */
+    }
+    .celestial-label {
+      position: absolute;
+      font-size: 0.7rem;
+      color: #666;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 2; /* Above horizon, below emojis */
+      background-color: var(--card); /* Background to make label stand out */
+      padding: 0 2px; /* Add some padding */
+      border-radius: 2px; /* Slightly rounded corners */
+    }
+    .aries-label {
+      color: var(--primary);
+      font-weight: bold;
+    }
+    /* Horizon line */
+    .horizon {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 100%;
+      height: 2px;
+      background-color: var(--border);
+      transform: translateY(-50%);
+      z-index: 1; /* Below labels and emojis */
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>🌌 Sidereal Time Calculator</h1>
+      <div class="input-group">
+        <label>Location:</label>
+        <div class="toggle-group">
+          <button onclick="detectLocation(); calculate();">📍 Detect IP</button>
+          <button onclick="showManualLocation()">📝 Manual</button>
+        </div>
+        <select id="citySelect" onchange="updateCity()">
+          <option value="">Select City</option>
+          <option value="13.7563,100.5018">Bangkok (13.8°N, 100.5°E)</option>
+          <option value="39.9042,116.4074">Beijing (39.9°N, 116.4°E)</option>
+          <option value="-34.6037,-58.3816">Buenos Aires (34.6°S, 58.4°W)</option>
+          <option value="30.0444,31.2357">Cairo (30.0°N, 31.2°E)</option>
+          <option value="28.7041,77.1025">Delhi (28.7°N, 77.1°E)</option>
+          <option value="23.8103,90.4125">Dhaka (23.8°N, 90.4°E)</option>
+          <option value="41.0082,28.9784">Istanbul (41.0°N, 29.0°E)</option>
+          <option value="-6.2088,106.8456">Jakarta (6.2°S, 106.8°E)</option>
+          <option value="24.8607,67.0011">Karachi (24.9°N, 67.0°E)</option>
+          <option value="22.5726,88.3639">Kolkata (22.6°N, 88.4°E)</option>
+          <option value="51.5074,-0.1278">London (51.5°N, 0.1°W)</option>
+          <option value="34.0522,-118.2437">Los Angeles (34.1°N, 118.2°W)</option>
+          <option value="19.4326,-99.1332">Mexico City (19.4°N, 99.1°W)</option>
+          <option value="55.7558,37.6173">Moscow (55.8°N, 37.6°E)</option>
+          <option value="19.0760,72.8777">Mumbai (19.1°N, 72.9°E)</option>
+          <option value="40.7128,-74.0060">New York (40.7°N, 74.0°W)</option>
+          <option value="-22.9068,-43.1729">Rio de Janeiro (22.9°S, 43.2°W)</option>
+          <option value="-23.5505,-46.6333">São Paulo (23.6°S, 46.6°W)</option>
+          <option value="37.5665,126.9780">Seoul (37.6°N, 127.0°E)</option>
+          <option value="35.6895,139.6917">Tokyo (35.7°N, 139.7°E)</option>
+        </select>
+        <div id="manualLocation" style="display: none; margin-top: 0.5rem;">
+          <input type="number" id="lat" step="0.0001" placeholder="Latitude" />
+          <input type="number" id="lon" step="0.0001" placeholder="Longitude" style="margin-top: 0.5rem;" />
+        </div>
+      </div>
+      <div class="input-group">
+        <label>Time (UTC): </label>
+        <div class="toggle-group">
+          <button onclick="setCurrentTime(); calculate();">⏱ Now</button>
+          <button onclick="enableCustomTime()">📅 Custom</button>
+        </div>
+        <input type="datetime-local" id="timeInput" disabled />
+      </div>
+      <button onclick="calculate()">🚀 Calculate</button>
+    </div>
+    <div class="card">
+      <div class="result" id="result">Local Sidereal Time:</div>
+      <div class="result" id="timeVerification"></div>
+      <div class="celestial" id="celestialPosition"></div>
+      <div id="emojiContainer">
+        <div class="horizon"></div>  <!-- Horizon line -->
+      </div>
+      <div class="input-group">  <!-- Moved toggle below image -->
+        <label>Display Options:</label>
+        <label><input type="checkbox" id="gammaToggle" checked onchange="calculate()"> Gamma Point (♈)</label>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ======================
+    // CORE TIME HANDLING
+    // ======================
+    const TimeManager = {
+      getUTCDate(inputTime) {
+        if (!inputTime) return new Date();
+        const [datePart, timePart] = inputTime.split('T');
+        const [year, month, day] = datePart.split('-').map(Number);
+        const [hours, minutes] = timePart.split(':').map(Number);
+        return new Date(Date.UTC(year, month - 1, day, hours, minutes));
+      },
+      setUTCDateInput(date) {
+        const pad = n => n.toString().padStart(2, '0');
+        const utcString =
+          `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}` +
+          `T${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}`;
+        document.getElementById('timeInput').value = utcString;
+      }
+    };
+
+    // ======================
+    // TIME CALCULATION CORE
+    // ======================
+    const TimeCalculator = {
+      getJulianDate(date) {
+        return (date.getTime() / 86400000) + 2440587.5;
+      },
+      calculateLST(jd, longitude) {
+        const T = (jd - 2451545.0) / 36525;
+        const gmst = 280.46061837 + 360.98564736629 * (jd - 2451545.0) +
+                     T * (0.000387933 - T / 38710000);
+        return ((gmst / 15 + longitude / 15) % 24 + 24) % 24;
+      },
+      formatTime(hours) {
+        const h = Math.floor(hours);
+        const m = Math.floor((hours - h) * 60);
+        const s = Math.round((((hours - h) * 60 - m)) * 60);
+        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+      }
+    };
+
+    // ======================
+    // MOON PHASE CALCULATION (PRECISE)
+    // ======================
+    const MoonPhaseCalculator = {
+      // Known reference data
+      REFERENCE_JD: 2460742.1323265624,
+      REFERENCE_LUNAR_AGE: 8.0195500710,
+      SYNODIC_MONTH: 29.53058867,
+
+      getLunarAge(date) {
+        const currentJD = TimeCalculator.getJulianDate(date);
+        const jdDifference = currentJD - this.REFERENCE_JD;
+        return (this.REFERENCE_LUNAR_AGE + jdDifference) % this.SYNODIC_MONTH;
+      },
+
+      getPhase(date) {
+        const age = this.getLunarAge(date);
+        return Math.min(7, Math.floor(age / (this.SYNODIC_MONTH / 8)));
+      },
+
+      getPhaseInfo(age) {
+        const phaseIndex = Math.min(7, Math.floor(age / (this.SYNODIC_MONTH / 8)));
+        const phases = [
+          { emoji: '🌑', name: 'New Moon', illum: '0%' },
+          { emoji: '🌒', name: 'Waxing Crescent', illum: '25%' },
+          { emoji: '🌓', name: 'First Quarter', illum: '50%' },
+          { emoji: '🌔', name: 'Waxing Gibbous', illum: '75%' },
+          { emoji: '🌕', name: 'Full Moon', illum: '100%' },
+          { emoji: '🌖', name: 'Waning Gibbous', illum: '75%' },
+          { emoji: '🌗', name: 'Last Quarter', illum: '50%' },
+          { emoji: '🌘', name: 'Waning Crescent', illum: '25%' }
+        ];
+        return phases[phaseIndex];
+      }
+    };
+
+    // ======================
+    // UPDATED CELESTIAL POSITIONING
+    // ======================
+     const CelestialCalculator = {
+      calculateSunPosition(utcDate) {
+        // Improved solar position calculation using Julian Date
+        const jd = TimeCalculator.getJulianDate(utcDate);
+        const T = (jd - 2451545.0) / 36525;
+
+        // Sun's geometric mean longitude
+        let L0 = 280.46646 + 36000.76983 * T;
+        L0 = L0 % 360;
+
+        // Mean solar anomaly
+        const M = 357.52911 + 35999.05029 * T;
+
+        // Equation of center
+        const C = (1.914602 - 0.004817 * T) * Math.sin(M * Math.PI/180)
+                + (0.019993 - 0.000101 * T) * Math.sin(2 * M * Math.PI/180)
+                + 0.000289 * Math.sin(3 * M * Math.PI/180);
+
+        // True longitude
+        const L_true = L0 + C;
+
+        // Convert to right ascension
+        const ε = 23.4392911 - 0.0130042 * T; // Obliquity of ecliptic
+        const α = Math.atan2(
+          Math.cos(ε * Math.PI/180) * Math.sin(L_true * Math.PI/180),
+          Math.cos(L_true * Math.PI/180)
+        ) * 180/Math.PI;
+        return α;
+      },
+
+      calculateMoonPosition(sunRA, lunarAge) {
+        // Moon RA relative to sun and lunar age (simplified)
+        const moonRA = (sunRA + (lunarAge / MoonPhaseCalculator.SYNODIC_MONTH) * 360 ) % 360;
+        return moonRA;
+      },
+
+      getCoordinates(haDegrees) {
+        // Convert hour angle to circle position
+        const theta = (360 - haDegrees) % 360;
+        const rad = theta * Math.PI / 180;
+        return {
+          x: 50 + 45 * Math.sin(rad),  // Radius adjusted for label space
+          y: 50 - 45 * Math.cos(rad),  // Radius adjusted for label space
+          angle: theta
+        };
+      },
+
+      getAriesPosition(lstHours) {
+        const haDegrees = lstHours * 15; // Convert LST to degrees
+        return this.getCoordinates(haDegrees);
+      }
+    };
+
+    // ======================
+    // UI UPDATES & HANDLERS
+    // ======================
+    function updateDisplay(solarTimeStr, utcDate, lst, sunPos, moonPos, moonInfo, ariesPos) {
+      document.getElementById("result").innerHTML = `
+        Local Sidereal Time: <strong>${TimeCalculator.formatTime(lst)}</strong>
+      `;
+      document.getElementById("timeVerification").innerHTML = `
+        Local Solar Time: ${solarTimeStr}<br>
+        Input UTC Time: ${utcDate.toUTCString().split(' ')[4]}<br>
+        Julian Date: ${TimeCalculator.getJulianDate(utcDate).toFixed(5)}
+      `;
+
+      const container = document.getElementById('emojiContainer');
+      container.innerHTML = ''; // Clear previous content
+
+      // Add horizon line (below everything)
+      const horizon = document.createElement('div');
+      container.appendChild(horizon);
+      horizon.className = 'horizon';
+
+
+      // Add directional labels (above horizon, below emojis)
+      const labels = [
+        { text: 'W', x: 5, y: 50 },
+        { text: 'E', x: 95, y: 50 },
+        { text: 'Zenith', x: 50, y: 5 },
+        { text: 'Nadir', x: 50, y: 95 }
+      ];
+
+      labels.forEach(label => {
+        const el = document.createElement('div');
+        el.className = 'celestial-label';
+        el.textContent = label.text;
+        el.style.left = `${label.x}%`; // Use percentage for container relative position
+        el.style.top = `${label.y}%`;  // Use percentage for container relative position
+        container.appendChild(el);
+      });
+
+      // Add Gamma Point (Aries) label and emoji conditionally
+      if (document.getElementById('gammaToggle').checked) {
+          const ariesEl = document.createElement('div');
+          ariesEl.className = 'celestial-label aries-label';
+          ariesEl.textContent = '♈ RA 0°';
+          ariesEl.style.left = `${ariesPos.x}%`; // Use percentage
+          ariesEl.style.top = `${ariesPos.y}%`;  // Use percentage
+          container.appendChild(ariesEl);
+      }
+
+
+      // Add celestial bodies (above labels and horizon)
+      [['🌞', sunPos], ['🌜', moonPos]].forEach(([emoji, pos]) => {
+        const el = document.createElement('div');
+        el.className = 'celestial-emoji';
+        el.textContent = emoji;
+        el.style.left = `${pos.x}%`; // Use percentage
+        el.style.top = `${pos.y}%`;  // Use percentage
+        container.appendChild(el);
+      });
+
+
+       document.getElementById("celestialPosition").innerHTML = `
+        Moon Phase: ${moonInfo.emoji} (${moonInfo.illum} illuminated)<br>
+        Sun RA: ${sunPos.angle.toFixed(2)}°, Moon RA: ${moonPos.angle.toFixed(2)}°
+      `;
+    }
+
+    async function calculate() {
+      const inputDate = TimeManager.getUTCDate(document.getElementById('timeInput').value);
+      const lon = parseFloat(document.getElementById('lon').value);
+
+      // Calculate positions using hour angles
+      const jd = TimeCalculator.getJulianDate(inputDate);
+      const lst = TimeCalculator.calculateLST(jd, lon);
+
+      // Sun position
+      const sunRA = CelestialCalculator.calculateSunPosition(inputDate);
+      const sunHA = (lst * 15 - sunRA + 360) % 360; // Ensure positive HA
+
+      // Moon position
+      const lunarAge = MoonPhaseCalculator.getLunarAge(inputDate);
+      const moonRA = CelestialCalculator.calculateMoonPosition(sunRA, lunarAge);
+      const moonHA = (lst * 15 - moonRA + 360) % 360; // Ensure positive HA
+      const moonInfo = MoonPhaseCalculator.getPhaseInfo(lunarAge);
+
+      // Get Aries point position
+      const ariesPos = CelestialCalculator.getAriesPosition(lst);
+      const sunPosCoords = CelestialCalculator.getCoordinates(sunHA);
+      const moonPosCoords = CelestialCalculator.getCoordinates(moonHA);
+      const ariesPosCoords = CelestialCalculator.getCoordinates(lst * 15); // Aries HA is 0, so position based on LST
+
+      // Solar time calculation
+      const solarTimeHours = (inputDate.getUTCHours() +
+                            inputDate.getUTCMinutes()/60 +
+                            lon/15) % 24;
+      const solarTimeStr = TimeCalculator.formatTime(solarTimeHours);
+
+
+      updateDisplay(
+        solarTimeStr,
+        inputDate,
+        lst,
+        sunPosCoords,
+        moonPosCoords,
+        moonInfo,
+        ariesPosCoords
+      );
+    }
+
+    // ==================
+    // UI HANDLERS
+    // ==================
+    const LocationHandler = {
+      async detect() {
+        return new Promise((resolve) => {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (pos) => {
+                this.updateCoords(pos.coords.latitude, pos.coords.longitude);
+                resolve(true);
+              },
+              async (error) => {
+                try {
+                  const ipRes = await fetch('https://ipapi.co/json/');
+                  const ipData = await ipRes.json();
+                  this.updateCoords(ipData.latitude, ipData.longitude);
+                  resolve(true);
+                } catch (ipError) {
+                  this.showManual();
+                  resolve(false);
+                }
+              }
+            );
+          } else {
+            fetch('https://ipapi.co/json/')
+              .then(ipRes => ipRes.json())
+              .then(ipData => {
+                this.updateCoords(ipData.latitude, ipData.longitude);
+                resolve(true);
+              })
+              .catch(() => {
+                this.showManual();
+                resolve(false);
+              });
+          }
+        });
+      },
+      updateCoords(lat, lon) {
+        document.getElementById('lat').value = lat.toFixed(4);
+        document.getElementById('lon').value = lon.toFixed(4);
+        this.showManual();
+      },
+      showManual() {
+        document.getElementById('manualLocation').style.display = 'block';
+        document.getElementById('citySelect').value = '';
+      }
+    };
+
+    const TimeHandler = {
+      setCurrent() {
+        TimeManager.setUTCDateInput(new Date());
+        document.getElementById('timeInput').disabled = true;
+      },
+      enableCustom() {
+        document.getElementById('timeInput').disabled = false;
+      }
+    };
+    // ======================
+    // INITIALIZATION & EVENTS
+    // ======================
+    window.onload = async function() {
+      const initDate = new Date();
+      TimeManager.setUTCDateInput(initDate);
+      await LocationHandler.detect();
+      calculate();
+    };
+    window.setCurrentTime = function() {
+      TimeHandler.setCurrent();
+      calculate();
+    };
+    window.enableCustomTime = () => TimeHandler.enableCustom();
+    window.updateCity = () => {
+      const [lat, lon] = document.getElementById('citySelect').value.split(',');
+      if (lat && lon) LocationHandler.updateCoords(lat, lon);
+    };
+    window.detectLocation = () => LocationHandler.detect().then(calculate);
+    window.showManualLocation = () => LocationHandler.showManual();
+  </script>
+</body>
+</html>
