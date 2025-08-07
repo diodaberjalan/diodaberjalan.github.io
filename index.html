@@ -16,14 +16,17 @@
       align-items: center;
       min-height: 100vh;
       text-align: center;
+      overflow: hidden; /* Hide scrollbars */
     }
     .container {
       max-width: 800px;
       width: 100%;
       padding: 2rem;
+      z-index: 1; /* Ensure content is above the stars */
+      position: relative;
     }
     .card {
-      background: #000000;
+      background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
       padding: 2rem;
       border: 1px solid #ffffff;
       border-radius: 0;
@@ -48,7 +51,7 @@
     .tool-link {
       display: block;
       padding: 1rem;
-      background-color: #000000;
+      background-color: rgba(0, 0, 0, 0.5);
       color: #ffffff;
       text-decoration: none;
       border: 1px solid #ffffff;
@@ -74,9 +77,70 @@
       font-size: 1rem;
       color: #bbbbbb;
     }
+
+    /* Starfield Background */
+    @keyframes move-stars {
+      from { transform: translateY(0px); }
+      to { transform: translateY(-2000px); }
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+
+    .stars, .twinkling {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .stars {
+      background: #000 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAAZiS0dEAP+AAAAA/vLdDgAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1fFwEAAwABAQEAAAE7AQAAD3RFWHRDb21tZW50AAAAAElFTkSuQmCC) repeat top center;
+      z-index: 0;
+    }
+
+    .twinkling {
+      background: transparent;
+      animation: move-stars 200s linear infinite;
+    }
+
+    .twinkling:after {
+      content: "";
+      position: absolute;
+      top: 2000px;
+      width: 1px;
+      height: 1px;
+      background: white;
+      box-shadow:
+        /* A lot of stars */
+        -993px 1869px #FFF, 288px 1018px #FFF, -951px 1198px #FFF, 839px 1030px #FFF,
+        -25px 531px #FFF, 126px 1928px #FFF, -899px 1930px #FFF, -861px 1209px #FFF,
+        -470px 1856px #FFF, -418px 1561px #FFF, 34px 1435px #FFF, 706px 1904px #FFF,
+        -32px 143px #FFF, -429px 1383px #FFF, -13px 1974px #FFF, -870px 1358px #FFF,
+        -376px 1359px #FFF, -165px 1279px #FFF, 622px 1454px #FFF, -391px 653px #FFF,
+        -733px 1251px #FFF, 474px 1730px #FFF, 321px 1139px #FFF, 356px 1515px #FFF,
+        -944px 1854px #FFF, -45px 104px #FFF, -392px 153px #FFF, -355px 1073px #FFF,
+        -283px 1493px #FFF, -42px 188px #FFF, -985px 1339px #FFF, -43px 183px #FFF,
+        -10px 140px #FFF, 545px 107px #FFF, 893px 132px #FFF, 110px 10px #FFF,
+        -22px 11px #FFF, -12px 13px #FFF, 45px 112px #FFF, 12px 122px #FFF,
+        150px 250px #FFF, 300px 400px #FFF, 500px 600px #FFF, 700px 800px #FFF,
+        900px 1000px #FFF, 1100px 1200px #FFF, 1300px 1400px #FFF, 1500px 1600px #FFF,
+        1700px 1800px #FFF, 1900px 2000px #FFF;
+      animation: twinkle 2s infinite;
+    }
+
   </style>
 </head>
 <body>
+  <div class="stars"></div>
+  <div class="twinkling"></div>
+
   <div class="container">
     <div class="card">
       <h1>diodaberjalan.github.io</h1>
