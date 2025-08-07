@@ -74,9 +74,18 @@
       font-size: 1rem;
       color: #bbbbbb;
     }
+    #starfield {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
   </style>
 </head>
 <body>
+  <canvas id="starfield"></canvas>
   <div class="container">
     <div class="card">
       <h1>diodaberjalan.github.io</h1>
@@ -129,5 +138,6 @@
 
     document.addEventListener('DOMContentLoaded', generateQuote);
   </script>
+  <script src="stars.js"></script>
 </body>
 </html>
