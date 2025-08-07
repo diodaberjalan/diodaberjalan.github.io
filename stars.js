@@ -25,8 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
             alpha: Math.random(),
             twinkleSpeed: Math.random() * 0.05,
             twinkleDirection: 1,
-            speedX: (Math.random() - 0.5) * 0.1,
-            speedY: (Math.random() - 0.5) * 0.1
+            speedX: 0.05,
+            speedY: 0.05
         });
     }
 
