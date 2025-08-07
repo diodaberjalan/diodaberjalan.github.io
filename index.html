@@ -3,17 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tool Hub</title>
+  <title>diodaberjalan.github.io</title>
   <style>
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: #f0f2f5;
+      font-family: 'Georgia', serif;
+      background-color: #000000;
+      color: #ffffff;
       margin: 0;
       padding: 0;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
+      text-align: center;
     }
     .container {
       max-width: 800px;
@@ -21,53 +23,111 @@
       padding: 2rem;
     }
     .card {
-      background: #ffffff;
+      background: #000000;
       padding: 2rem;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      text-align: center;
+      border: 1px solid #ffffff;
+      border-radius: 0;
     }
     h1 {
       font-size: 2.5rem;
       margin-bottom: 1rem;
-      color: #1c1e21;
+      color: #ffffff;
+      font-weight: normal;
     }
     p {
       font-size: 1.1rem;
-      color: #606770;
+      color: #cccccc;
       margin-bottom: 2rem;
     }
     .tool-list {
       display: flex;
       flex-direction: column;
       gap: 1rem;
+      margin-bottom: 3rem;
     }
     .tool-link {
       display: block;
       padding: 1rem;
-      background-color: #1877f2;
+      background-color: #000000;
       color: #ffffff;
       text-decoration: none;
-      border-radius: 6px;
+      border: 1px solid #ffffff;
       font-size: 1.2rem;
-      font-weight: 600;
-      transition: background-color 0.2s ease;
+      transition: background-color 0.3s, color 0.3s;
     }
     .tool-link:hover {
-      background-color: #166fe5;
+      background-color: #ffffff;
+      color: #000000;
+    }
+    .quote-container {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid #ffffff;
+    }
+    #quote {
+      font-size: 1.2rem;
+      font-style: italic;
+      margin-bottom: 0.5rem;
+      color: #dddddd;
+    }
+    #author {
+      font-size: 1rem;
+      color: #bbbbbb;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="card">
-      <h1>Welcome to the Tool Hub</h1>
+      <h1>diodaberjalan.github.io</h1>
       <p>Select a tool to get started.</p>
       <div class="tool-list">
         <a href="ageest/" class="tool-link">Forensic Age Estimation Combiner</a>
         <a href="lst/" class="tool-link">Sidereal Time Calculator</a>
       </div>
+      <div class="quote-container">
+        <p id="quote"></p>
+        <p id="author"></p>
+      </div>
     </div>
   </div>
+
+  <script>
+    const quotes = [
+      {
+        quote: "The Sun, with all those planets revolving around it and dependent on it, can still ripen a bunch of grapes as if it had nothing else in the universe to do.",
+        author: "Galileo Galilei"
+      },
+      {
+        quote: "Look up at the stars and not down at your feet. Try to make sense of what you see, and wonder about what makes the universe exist. Be curious.",
+        author: "Stephen Hawking"
+      },
+      {
+        quote: "We are all in the gutter, but some of us are looking at the stars.",
+        author: "Oscar Wilde"
+      },
+      {
+        quote: "Two things are infinite: the universe and human stupidity; and I'm not sure about the universe.",
+        author: "Albert Einstein"
+      },
+      {
+        quote: "The nitrogen in our DNA, the calcium in our teeth, the iron in our blood, the carbon in our apple pies were made in the interiors of collapsing stars. We are made of starstuff.",
+        author: "Carl Sagan"
+      },
+      {
+        quote: "Equipped with his five senses, man explores the universe around him and calls the adventure Science.",
+        author: "Edwin Hubble"
+      }
+    ];
+
+    function generateQuote() {
+      const randomIndex = Math.floor(Math.random() * quotes.length);
+      const randomQuote = quotes[randomIndex];
+      document.getElementById('quote').innerText = `"${randomQuote.quote}"`;
+      document.getElementById('author').innerText = `- ${randomQuote.author}`;
+    }
+
+    document.addEventListener('DOMContentLoaded', generateQuote);
+  </script>
 </body>
 </html>
